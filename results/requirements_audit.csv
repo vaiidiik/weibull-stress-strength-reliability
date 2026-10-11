@@ -1,0 +1,6 @@
+requirement,evidence,status
+Unrestricted and restricted MLEs,"Profile derivation, independent optimization check, real-data and 48-scenario tables",Implemented
+Joint priors,"Dependent gamma-Dirichlet family, Jacobian, covariance, truncated ordered prior",Implemented
+Unrestricted and restricted Bayes estimates,"Quadrature, squared-error and LINEX, credible intervals, independent sampler",Implemented
+Complete simulation,"48 x 300 datasets; point metrics for four targets; coverage, MCSE, bootstrap subset",Implemented
+Suitable-data validation,"Published jute data; calibrated K-S/LR; fit, sampling, posterior and predictive figures",Implemented

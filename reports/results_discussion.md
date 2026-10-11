@@ -1,0 +1,13 @@
+# Results and discussion
+
+Vaidik Maheshwari (250150045) and Anant Gupta (250150004)
+
+The complete 15 mm and 20 mm samples give calibrated Weibull K-S p-values 0.026 and 0.078. The common-shape likelihood-ratio statistic is 0.208, with bootstrap p-value 0.620. The 15 mm calibrated test rejects Weibull adequacy at the 5% level, so the jute estimates are reported with a model-fit limitation. The additional carbon-fibre halves have calibrated K-S p-values 0.585 and 0.101; their common-shape bootstrap p-value is 0.678. These are compatible with the fitted Weibull model at this sample size, without proving it true. Their unrestricted and restricted posterior reliability means are 0.3623 and 0.5653, respectively.
+
+The retrospective Type-I experiment retains 13 strength failures and 6 upper 2-records. The unrestricted MLE reliability is 0.7526; its log-ratio 95% confidence interval is [0.4445, 0.9446]. The unrestricted posterior mean is 0.6656, with a 95% equal-tail credible interval [0.3805, 0.8947]. The restricted MLE is 0.7526; the restricted posterior mean is 0.6989, with credible interval [0.5157, 0.8988]. The restricted posterior excludes reliability below one half by construction, so this shift reflects the assumed rate order as well as the measurements.
+
+Across 14,400 simulated datasets, all four estimators were compared against fixed truths and all raw outputs were retained. Scenario-level tables include Monte Carlo uncertainty. Under a false order restriction, the true reliability is below one half while restricted estimates cannot be; the resulting bias and low coverage are a structural consequence rather than an implementation error. At an equality boundary, a continuous truncated posterior has all interval mass above one half, so an equal-tail restricted credible interval need not include the boundary truth. This is why boundary coverage is reported explicitly.
+
+The largest sampler split R-hat is 1.0009 and the minimum effective sample size is 3977. Sampler means are checked against quadrature with their Monte Carlo standard errors. The maximum real-data quadrature refinement difference in a mean is 1.4e-14. The model remains conditional on common shape, homogeneous block populations, noninformative withdrawals, shared stress and the laboratory interpretation of the comparison group. Acquisition-order sensitivity and prior sensitivity should be retained when presenting the estimates.
+
+All five assigned requirements are implemented. The SAGE reference was available at abstract level only; full-text review of that unsupplied article remains access-limited. All five supplied PDFs were examined and their uses or exclusions are recorded in the literature review.

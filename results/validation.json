@@ -1,0 +1,28 @@
+{
+  "authors": [
+    "Vaidik Maheshwari (250150045)",
+    "Anant Gupta (250150004)"
+  ],
+  "executed_code_cells": 12,
+  "notebook_errors": 0,
+  "embedded_graphs": 12,
+  "saved_graphs": 12,
+  "python_comment_tokens": 0,
+  "simulation_scenarios": 48,
+  "replications_per_scenario": 300,
+  "simulated_datasets": 14400,
+  "estimators_per_dataset": 4,
+  "supplied_pdf_count": 5,
+  "supplied_pdf_pages": 105,
+  "report_pdf_pages": 48,
+  "source_access_limitation": "Assigned SAGE full text unavailable; publisher abstract reviewed",
+  "checks": "Likelihood optimizer, information derivatives, reliability integral/direct simulation, grid refinement, specimen conservation, posterior sampler and numerical outputs passed",
+  "readability_audit": {
+    "all_pages_visually_reviewed": true,
+    "text_outside_margins": 0,
+    "separate_enlarged_graph_panels": 47,
+    "display_math": "Typeset vector equations",
+    "body_font_size_pt": 11.5,
+    "saved_notebook_outputs_preserved": true
+  }
+}
