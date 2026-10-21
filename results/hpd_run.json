@@ -1,0 +1,7 @@
+{
+  "scenarios": 48,
+  "replications": 300,
+  "elapsed_seconds": 74.44960498809814,
+  "probability_mass": 0.95,
+  "method": "Shortest interval from an interpolated marginal density on reliability scale; HPD approximation for unimodal densities"
+}

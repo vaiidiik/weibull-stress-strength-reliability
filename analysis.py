@@ -5,7 +5,7 @@ import time
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy import optimize, special, stats, integrate
+from scipy import optimize, special, stats, integrate, interpolate
 from numpy.polynomial.legendre import leggauss
 from IPython.display import display, Markdown
 
@@ -150,16 +150,33 @@ def weighted_quantile(values, weights, probs=(.025, .975)):
     return np.interp(probs, cw, v)
 
 
-def shortest_interval(values, weights, mass=.95):
-    order = np.argsort(values)
-    v, w = np.asarray(values)[order], np.asarray(weights)[order]
-    cum = np.r_[0, np.cumsum(w) / np.sum(w)]
-    ends = np.searchsorted(cum, cum[:-1] + mass)
-    good = ends <= len(v)
-    starts = np.arange(len(v))[good]
-    ends = np.minimum(ends[good] - 1, len(v) - 1)
-    j = np.argmin(v[ends] - v[starts])
-    return np.array([v[starts[j]], v[ends[j]]])
+def hpd_interval(nodes, log_density, lower, upper, boundary_log_density=None, mass=.95):
+    order = np.argsort(nodes)
+    x = np.asarray(nodes)[order]
+    logf = np.asarray(log_density)[order]
+    shift = max(float(logf.max()), boundary_log_density if boundary_log_density is not None else -np.inf)
+    f = np.exp(logf - shift)
+    left = 0.0 if boundary_log_density is None else np.exp(boundary_log_density - shift)
+    x = np.r_[lower, x, upper]
+    f = np.r_[left, f, 0.0]
+    density = interpolate.PchipInterpolator(x, f)
+    cdf = density.antiderivative()
+    normalizer = float(cdf(upper) - cdf(lower))
+    def quantile(probability):
+        if probability <= 0:
+            return lower
+        if probability >= 1:
+            return upper
+        target = float(cdf(lower)) + probability * normalizer
+        return optimize.brentq(lambda value: float(cdf(value)) - target, lower, upper, xtol=1e-11)
+    def width(probability):
+        return quantile(probability + mass) - quantile(probability)
+    result = optimize.minimize_scalar(width, bounds=(0, 1-mass), method='bounded', options={'xatol':1e-9})
+    candidates = [0., float(result.x), 1-mass]
+    start = min(candidates, key=width)
+    interval = np.array([quantile(start), quantile(start+mass)])
+    probability = float((cdf(interval[1])-cdf(interval[0])) / normalizer)
+    return interval, probability
 
 
 _QUADRATURE = {}
@@ -186,16 +203,28 @@ def posterior_grid(data, restricted=False, prior=None, na=110, np_=160):
     Q = pr['a0'] + data['q']
     logw = ((data['q'] + pr['a1'] - 1) * np.log(alpha) + (alpha - 1) * data['C'] - pr['b1'] * alpha + logwa)[:, None]
     logw = logw + (data['d'] + pr['c1'] - 1) * np.log(p) + (data['r'] + pr['c2'] - 1) * np.log1p(-p) - Q * np.log(H) + logwp
-    logw -= special.logsumexp(logw)
+    normalizer = special.logsumexp(logw)
+    logw -= normalizer
     weights = np.exp(logw)
     R = reliability(p, 1 - p)
     means = np.array([np.sum(weights * alpha[:, None]), np.sum(weights * p * Q / H), np.sum(weights * (1 - p) * Q / H), np.sum(weights * R)])
     pweights = weights.sum(axis=0)
     reliability_ci = weighted_quantile(R, pweights)
-    hpd = shortest_interval(R, pweights)
+    rho = (1-p)/p
+    log_derivative = sum(np.log(j)-np.log(j+rho) for j in range(3,6)) + np.log(sum(1/(j+rho) for j in range(3,6))) - 2*np.log(p)
+    log_density = special.logsumexp(logw,axis=0)-logwp-log_derivative
+    boundary = None
+    if restricted:
+        Hb = pr['b0'] + .5*A + .5*B
+        log_boundary_p = special.logsumexp((data['q']+pr['a1']-1)*np.log(alpha)+(alpha-1)*data['C']-pr['b1']*alpha+logwa-Q*np.log(Hb))
+        log_boundary_p += (data['q']+pr['c1']+pr['c2']-2)*np.log(.5)-normalizer
+        derivative_boundary = np.prod(np.arange(3,6)/(np.arange(3,6)+1))*np.sum(1/(np.arange(3,6)+1))/.25
+        boundary = log_boundary_p-np.log(derivative_boundary)
+    hpd,hpd_mass = hpd_interval(R,log_density,.5 if restricted else 0.,1.,boundary)
+
     linex = {c: -special.logsumexp(np.log(pweights + 1e-300) - c * R) / c for c in [1.5, -1.5]}
     edge_mass = weights[:2].sum() + weights[-2:].sum()
-    return dict(alpha=alpha, p=p, H=H, Q=Q, weights=weights, means=means, ci=reliability_ci, hpd=hpd, linex=linex, edge_mass=edge_mass, prior=pr, restricted=restricted)
+    return dict(alpha=alpha, p=p, H=H, Q=Q, weights=weights, means=means, ci=reliability_ci, hpd=hpd, hpd_mass=hpd_mass, linex=linex, edge_mass=edge_mass, prior=pr, restricted=restricted)
 
 
 def posterior_draws(grid, rng, size=30000):
@@ -263,6 +292,9 @@ def run_simulation(repetitions=300):
                             fits = [('MLE', np.r_[unrestricted, reliability(*unrestricted[1:])], aci), ('Restricted MLE', np.r_[restricted, reliability(*restricted[1:])], None), ('Bayes', grid_u['means'], grid_u['ci']), ('Restricted Bayes', grid_o['means'], grid_o['ci'])]
                             for method, est, ci in fits:
                                 row = dict(scenario=sid, replicate=rep+1, method=method, observed_failures=data['d'], time_stopped_blocks=sum(x['case']=='time' for x in data['blocks']), pooled=bool(np.isclose(restricted[1], restricted[2])), alpha=est[0], lambda_X=est[1], lambda_Y=est[2], R_3_5=est[3], lower=np.nan if ci is None else ci[0], upper=np.nan if ci is None else ci[1], covered=np.nan if ci is None else float(ci[0] <= truth[-1] <= ci[1]), grid_edge_mass=max(grid_u['edge_mass'],grid_o['edge_mass']))
+                                if method in ['Bayes','Restricted Bayes']:
+                                    grid = grid_u if method=='Bayes' else grid_o
+                                    row.update(hpd_lower=grid['hpd'][0],hpd_upper=grid['hpd'][1],hpd_covered=float(grid['hpd'][0]<=truth[-1]<=grid['hpd'][1]),hpd_mass=grid['hpd_mass'])
                                 records.append(row)
                         if sid % 4 == 0:
                             print(f'Completed {sid}/48 scenarios', flush=True)
@@ -279,6 +311,9 @@ def run_simulation(repetitions=300):
             if parameter=='R_3_5' and method!='Restricted MLE':
                 cp = group.covered.mean()
                 row.update(coverage=cp, coverage_mcse=np.sqrt(cp*(1-cp)/len(group)),average_length=(group.upper-group.lower).mean())
+                if method in ['Bayes','Restricted Bayes']:
+                    hp = group.hpd_covered.mean()
+                    row.update(hpd_coverage=hp,hpd_coverage_mcse=np.sqrt(hp*(1-hp)/len(group)),hpd_average_length=(group.hpd_upper-group.hpd_lower).mean())
             summary.append(row)
     summary = pd.DataFrame(summary).merge(design, on='scenario')
     summary.to_csv(ROOT/'results/simulation_summary.csv',index=False)

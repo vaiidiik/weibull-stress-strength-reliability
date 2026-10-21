@@ -6,8 +6,16 @@ __pycache__/
 venv/
 .env
 tmp/
+/local_archive/
 /sources/
-/reports/archive/
 /*.pdf
 /Assigned Project List DA2141(Sheet1).csv
-/improve_notation.py
+/manuscript/*.aux
+/manuscript/*.bbl
+/manuscript/*.blg
+/manuscript/*.log
+/manuscript/*.out
+/manuscript/*.fls
+/manuscript/*.fdb_latexmk
+/manuscript/*.synctex.gz
+/manuscript/main.pdf

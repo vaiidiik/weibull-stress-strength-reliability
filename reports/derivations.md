@@ -189,7 +189,7 @@ This is the two-dimensional gamma-Dirichlet family used in Sultana et al. It giv
 
 $$(a_0,b_0,c_1,c_2,a_1,b_1)=(2,0.5,2,2,2,1).$$
 
-Since $a_0\ne c_1+c_2$, dependence is genuine. For $c=c_1+c_2$,
+Since $a_0\ne c_1+c_2$, the rates are dependent. For $c=c_1+c_2$,
 
 $$E(a)=\frac{a_0c_1}{b_0c},\quad E(b)=\frac{a_0c_2}{b_0c},\quad\operatorname{Cov}(a,b)=\frac{a_0c_1c_2(c-a_0)}{b_0^2c^2(c+1)}.$$
 
@@ -246,7 +246,7 @@ Differentiating posterior expected loss gives
 
 $$\widehat R_{B,c}=-\frac1c\log E[e^{-cR}\mid D],\qquad c\ne0.$$
 
-The notebook reports $c=+1.5$ and $c=-1.5$, equal-tail 95% credible intervals, and shortest weighted 95% intervals for R. Shortest intervals are numerical approximations to HPD intervals for a unimodal marginal; equal-tail and shortest intervals are not interchangeable.
+The notebook reports $c=+1.5$ and $c=-1.5$, equal-tail 95% credible intervals, and numerical HPD intervals for $R$. For HPD calculation, transform the quadrature marginal density of $p$ to the reliability scale using the absolute derivative $|dR/dp|$. A shape-preserving cubic interpolant approximates this density. Its integrated CDF is inverted and the shortest interval of probability 0.95 is found, checking both support endpoints as candidates. For the unimodal marginals in this study this approximates an HPD interval. The order boundary $R=1/2$ can therefore be an endpoint. Probability mass and grid-refinement checks are recorded. HPD intervals and equal-tail intervals are not interchangeable.
 
 For an independent computational check, four Metropolis-Hastings chains sample the collapsed density in $(\log\alpha,\operatorname{logit}v)$, where $p=v$ for the unrestricted model and $p=v/2$ for the restricted model. The transformed target includes the log-shape Jacobian and
 
@@ -268,9 +268,9 @@ $$\operatorname{RMSE}=\sqrt{\operatorname{MSE}},\qquad\operatorname{MCSE}(\opera
 
 $$\operatorname{MCSE}(\operatorname{MSE})=\frac{\operatorname{SD}(e_l^2)}{\sqrt{M}}.$$
 
-For intervals, report coverage $\widehat{\operatorname{CP}}$, average length and
+For asymptotic, Bayesian equal-tail and numerical HPD intervals, report coverage $\widehat{\operatorname{CP}}$, average length and
 
-$$\operatorname{MCSE}(\widehat{\operatorname{CP}})=\sqrt{\frac{\widehat{\operatorname{CP}}(1-\widehat{\operatorname{CP}})}{M}}.$$ The main coverage table includes unrestricted log-ratio asymptotic intervals and unrestricted/restricted Bayesian equal-tail intervals. Restricted MLE bootstrap coverage is separately measured in six selected scenarios with 100 outer replications and 199 inner resamples; its greater Monte Carlo uncertainty is displayed. The primary simulation's restricted MLE has no invented regular normal interval.
+$$\operatorname{MCSE}(\widehat{\operatorname{CP}})=\sqrt{\frac{\widehat{\operatorname{CP}}(1-\widehat{\operatorname{CP}})}{M}}.$$ The main coverage table includes unrestricted log-ratio asymptotic intervals and unrestricted/restricted Bayesian equal-tail and HPD intervals. Restricted MLE bootstrap coverage is separately measured in six selected scenarios with 100 outer replications and 199 inner resamples; its greater Monte Carlo uncertainty is displayed. The primary simulation's restricted MLE has no invented regular normal interval.
 
 All raw replications, scenario settings, summary tables, numerical-refinement results and figures are exported. Seeds are fixed, and computational failures and specimen conservation are audited. Conclusions refer to the measured results rather than asserting universal Bayesian superiority.
 

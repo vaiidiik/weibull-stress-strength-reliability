@@ -33,7 +33,7 @@ The 10 mm jute group contains a printed value 70.32383 alongside values below on
 
 ## Provenance and reproducibility
 
-The original PDFs and assignment CSV remain in the project folder. Extracted text is in sources/text. The transcribed measurement table is data/jute_fibre.csv. The notebook contains the full model, mathematical derivations and executable analysis. Reports, results and figures identify the exact settings and actual computed outcomes. Numerical simulations and retrospective censoring are explicitly distinguished from the source's original measurements.
+The original PDFs are stored locally in sources/originals, and the assignment CSV and extracted text are also under sources. This folder is excluded from the GitHub submission. The transcribed measurement table is data/jute_fibre.csv. The notebook contains the full model, mathematical derivations and executable analysis. Reports, results and figures identify the exact settings and actual computed outcomes. Numerical simulations and retrospective censoring are explicitly distinguished from the source's original measurements.
 
 Publisher links: [Scientific Reports](https://www.nature.com/articles/s41598-025-30570-9), [Weibull block paper](https://doi.org/10.1080/03610926.2025.2579720), [Journal of Mathematics](https://doi.org/10.1155/jom/5561353), [AIP Advances](https://doi.org/10.1063/5.0201467), [ratio control-chart paper](https://doi.org/10.1016/j.engappai.2024.109652), [SAGE block-progressive paper](https://doi.org/10.1177/1748006X241247866).
 
