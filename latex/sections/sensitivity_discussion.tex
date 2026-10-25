@@ -1,0 +1,19 @@
+\subsection{Sensitivity and posterior prediction}\label{sec:sensitivity}
+A single fitted estimate does not show how much the answer depends on modelling choices. We vary one stated feature at a time in the jute example. Table~\ref{tab:sensitivity} distinguishes changes to the prior, the hybrid stopping scheme and the record design. Ordered and unrestricted rows must still be read as different assumptions about the populations.
+
+\input{tables/sensitivity.tex}
+
+Under the three priors, the unrestricted posterior mean reliability ranges from about 0.6194 to 0.6757. The more concentrated rate prior pulls the estimate down compared with the primary prior. This is why the primary prior is described as a fixed proper prior, rather than as noninformative. The result should not be presented as if it depended on the observations alone.
+
+Changing the strength protocol from Type I to adaptive Type II changes the unrestricted posterior mean from about 0.6656 to 0.5450 in this retrospective example. The adaptive rule retains a different experiment; it is not just a different label on the same data. Similarly, different record orders and stopping counts select different stress information. Their estimates need not change monotonically. In particular, retaining more records changes both the information and the largest observed record.
+
+The original printed order is only an imposed acquisition order. We therefore repeat record extraction after 200 random permutations of the complete comparison sample. Some permutations do not produce six records in the available sequence. The plotted distribution uses successful permutations only. Its spread shows acquisition-order sensitivity; it is not a confidence distribution for a new independent sample.
+
+\input{tables/order_findings.tex}
+
+For a posterior predictive check, we draw parameters from the fitted unrestricted posterior and generate a fresh experiment using the original censoring and record rules. We repeat this 2000 times and compare the retained failure count and largest stress record with the observed values. The orange vertical lines in the figures identify the observed values or the original acquisition-order estimate.
+
+\input{tables/predictive.tex}
+\input{sections/predictive_graphs.tex}
+
+The observed failure count, 13, falls within the predictive central range of 8 to 19. The largest retained stress record also falls within its predictive range. This says that these two summaries are not unusual under the fitted experiment. It does not cancel the complete-data jute goodness-of-fit rejection. Posterior predictive tail areas are descriptive model checks; they are not ordinary uniformly distributed significance-test p-values.

@@ -1,0 +1,47 @@
+{
+  "authors": [
+    "Vaidik Maheshwari (250150045)",
+    "Anant Gupta (250150004)"
+  ],
+  "executed_code_cells": 12,
+  "notebook_errors": 0,
+  "embedded_graphs": 13,
+  "saved_graphs": 13,
+  "python_comment_tokens": 0,
+  "simulation_scenarios": 48,
+  "replications_per_scenario": 300,
+  "simulated_datasets": 14400,
+  "estimators_per_dataset": 4,
+  "supplied_pdf_count": 5,
+  "supplied_pdf_pages": 105,
+  "report_pdf_pages": 47,
+  "source_access_limitation": "Assigned SAGE full text unavailable; publisher abstract reviewed",
+  "checks": "Likelihood optimization, information derivatives, reliability integration/direct simulation, specimen conservation, posterior sampling, HPD probability mass and grid refinement passed; all 12 notebook code cells executed without error",
+  "readability_audit": {
+    "all_pages_visually_reviewed": true,
+    "text_outside_margins": 0,
+    "unresolved_references": 0,
+    "replacement_characters": 0,
+    "body_font_size_pt": 11,
+    "layout": "Supplied A4 article margins and section structure",
+    "images": 49
+  },
+  "hpd_validation": {
+    "simulated_bayesian_intervals": 28800,
+    "maximum_probability_mass_error": 5.84e-12,
+    "maximum_application_refinement_difference": 3.73e-08,
+    "normal_distribution_check": "passed",
+    "boundary_endpoint_check": "passed"
+  },
+  "latex_comment_lines": 0,
+  "report_pseudocode_algorithms": 3,
+  "report_graph_panels": 49,
+  "repository_layout": [
+    "Project_Report.pdf",
+    "README.md",
+    "latex",
+    "graphs",
+    "data",
+    "code"
+  ]
+}

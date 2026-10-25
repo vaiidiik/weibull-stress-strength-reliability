@@ -5,17 +5,15 @@ __pycache__/
 .venv/
 venv/
 .env
-tmp/
+/tmp/
 /local_archive/
 /sources/
-/*.pdf
-/Assigned Project List DA2141(Sheet1).csv
-/manuscript/*.aux
-/manuscript/*.bbl
-/manuscript/*.blg
-/manuscript/*.log
-/manuscript/*.out
-/manuscript/*.fls
-/manuscript/*.fdb_latexmk
-/manuscript/*.synctex.gz
-/manuscript/main.pdf
+/latex/*.aux
+/latex/*.bbl
+/latex/*.blg
+/latex/*.log
+/latex/*.out
+/latex/*.fls
+/latex/*.fdb_latexmk
+/latex/*.synctex.gz
+/latex/main.pdf

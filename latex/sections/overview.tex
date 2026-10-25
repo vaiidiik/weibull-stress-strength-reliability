@@ -1,0 +1,44 @@
+\subsection{What we did in this project}\label{sec:work}
+The main question is simple: how likely is a system to work when at least three of its five components must be stronger than the same applied stress? The observations available for estimation are incomplete. Some strength specimens leave a test before failure, and only selected record values of stress are retained.
+
+We carried out the following steps.
+\begin{enumerate}
+\item We read the supplied papers and selected the Weibull distribution required by the assigned topic. We kept the strength and stress roles separate throughout the calculation.
+\item We derived the shared-stress reliability probability, then wrote a likelihood for the actual strength censoring and stress record schemes.
+\item We found maximum likelihood estimates with and without the rate-order restriction. The ordered calculation includes reoptimizing the common shape.
+\item We specified a dependent joint prior and calculated posterior means, equal-tail intervals and numerical HPD intervals. The prior was fixed before the simulation study.
+\item We generated 14,400 simulated datasets across 48 settings. Each dataset was given to all four estimators so that differences between methods did not come from using different random samples.
+\item We transcribed two published datasets, checked distributional assumptions and imposed reproducible retrospective censoring and record extraction. The complete measurements and retained observations were saved separately.
+\item We checked numerical calculations and examined changes caused by the prior, stopping scheme and acquisition order. The report includes both the useful results and the limitations.
+\end{enumerate}
+The result is a comparison of estimation methods for one stated model. It is not a new experiment on manufactured specimens, and it does not establish a certified operating reliability for a real installation.
+
+\subsection{How to read the results}\label{sec:reading}
+There are three different kinds of data in the project. The raw jute and carbon measurements are published observations. The censored blocks and records are retrospective selections made from those observations. The Monte Carlo datasets are generated under known parameter values to test the estimators. These should not be confused with each other.
+
+The point-estimation comparison asks whether an estimate is close to the true value over repeated simulated datasets. The interval comparison asks how often an interval covers that value and how wide it is. A short interval is helpful only if its coverage is also reasonable. A credible interval describes posterior probability under a prior and a likelihood; a confidence interval has a repeated-sampling interpretation. We report both types but do not give them the same interpretation.
+
+For the data examples, the population truth is unknown. We can report fitted estimates, intervals, goodness-of-fit checks and sensitivity results, but we cannot calculate an observed-data MSE against an unknown truth. Simulation supplies that part of the comparison.
+
+\subsection{Main notation}\label{sec:notation}
+\begin{table}[htbp]
+\centering
+\caption{Symbols used throughout the report. The record order $k$ and system size $K$ have different meanings.}\label{tab:notation}
+\small
+\begin{tabular}{lp{.72\linewidth}}
+\toprule
+Symbol & Meaning \\
+\midrule
+$\alpha$ & Common Weibull shape parameter \\
+$a,b$ & Strength and stress rate parameters \\
+$K,s$ & Number of components and minimum number that must survive \\
+$k,r$ & Stress record order and prescribed number of records \\
+$n_i,m_i,T_i$ & Initial block size, target failures and time threshold \\
+$d_i,r_{ij},q_i$ & Observed failures, actual withdrawals and terminal survivors \\
+$d,q$ & Total strength failures and $q=d+r$ \\
+$A(\alpha),B(\alpha)$ & Strength and stress exposure terms in the likelihood \\
+$R$ & The 3-out-of-5 shared-stress reliability in the numerical work \\
+$M$ & Number of Monte Carlo replications within a scenario \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,273 @@
+{
+  "01_weibull_functions": [
+    {
+      "path": "graphs/01_weibull_functions_panel_01.png",
+      "title": "Weibull density",
+      "panel": 1
+    },
+    {
+      "path": "graphs/01_weibull_functions_panel_02.png",
+      "title": "Weibull distribution",
+      "panel": 2
+    },
+    {
+      "path": "graphs/01_weibull_functions_panel_03.png",
+      "title": "Weibull survival",
+      "panel": 3
+    },
+    {
+      "path": "graphs/01_weibull_functions_panel_04.png",
+      "title": "Weibull hazard",
+      "panel": 4
+    }
+  ],
+  "02_reliability": [
+    {
+      "path": "graphs/02_reliability_panel_01.png",
+      "title": "Shared-stress system configurations",
+      "panel": 1
+    },
+    {
+      "path": "graphs/02_reliability_panel_02.png",
+      "title": "Effect of common-stress dependence",
+      "panel": 2
+    }
+  ],
+  "03_simulation_bias_mse": [
+    {
+      "path": "graphs/03_simulation_bias_mse_panel_01.png",
+      "title": "Ordered rate order",
+      "panel": 1
+    },
+    {
+      "path": "graphs/03_simulation_bias_mse_panel_02.png",
+      "title": "Boundary rate order",
+      "panel": 2
+    },
+    {
+      "path": "graphs/03_simulation_bias_mse_panel_03.png",
+      "title": "Violated rate order",
+      "panel": 3
+    },
+    {
+      "path": "graphs/03_simulation_bias_mse_panel_04.png",
+      "title": "Ordered rate order",
+      "panel": 4
+    },
+    {
+      "path": "graphs/03_simulation_bias_mse_panel_05.png",
+      "title": "Boundary rate order",
+      "panel": 5
+    },
+    {
+      "path": "graphs/03_simulation_bias_mse_panel_06.png",
+      "title": "Violated rate order",
+      "panel": 6
+    }
+  ],
+  "04_simulation_coverage": [
+    {
+      "path": "graphs/04_simulation_coverage_panel_01.png",
+      "title": "Ordered",
+      "panel": 1
+    },
+    {
+      "path": "graphs/04_simulation_coverage_panel_02.png",
+      "title": "Boundary",
+      "panel": 2
+    },
+    {
+      "path": "graphs/04_simulation_coverage_panel_03.png",
+      "title": "Violated",
+      "panel": 3
+    }
+  ],
+  "13_hpd_comparison": [
+    {
+      "path": "graphs/13_hpd_comparison_panel_01.png",
+      "title": "Bayesian interval coverage",
+      "panel": 1
+    },
+    {
+      "path": "graphs/13_hpd_comparison_panel_02.png",
+      "title": "Bayesian interval width",
+      "panel": 2
+    }
+  ],
+  "05_observed_information": [
+    {
+      "path": "graphs/05_observed_information_panel_01.png",
+      "title": "Type I retained failures",
+      "panel": 1
+    },
+    {
+      "path": "graphs/05_observed_information_panel_02.png",
+      "title": "Adaptive II retained failures",
+      "panel": 2
+    }
+  ],
+  "06_real_data_fit": [
+    {
+      "path": "graphs/06_real_data_fit_panel_01.png",
+      "title": "15 mm strength density",
+      "panel": 1
+    },
+    {
+      "path": "graphs/06_real_data_fit_panel_02.png",
+      "title": "15 mm strength CDF",
+      "panel": 2
+    },
+    {
+      "path": "graphs/06_real_data_fit_panel_03.png",
+      "title": "15 mm strength Q-Q",
+      "panel": 3
+    },
+    {
+      "path": "graphs/06_real_data_fit_panel_04.png",
+      "title": "20 mm comparison stress density",
+      "panel": 4
+    },
+    {
+      "path": "graphs/06_real_data_fit_panel_05.png",
+      "title": "20 mm comparison stress CDF",
+      "panel": 5
+    },
+    {
+      "path": "graphs/06_real_data_fit_panel_06.png",
+      "title": "20 mm comparison stress Q-Q",
+      "panel": 6
+    }
+  ],
+  "07_real_sampling": [
+    {
+      "path": "graphs/07_real_sampling_panel_01.png",
+      "title": "Retained failures and censoring",
+      "panel": 1
+    },
+    {
+      "path": "graphs/07_real_sampling_panel_02.png",
+      "title": "Auditable upper k-record extraction",
+      "panel": 2
+    }
+  ],
+  "08_real_reliability_intervals": [
+    {
+      "path": "graphs/08_real_reliability_intervals_panel_01.png",
+      "title": "Posterior reliability",
+      "panel": 1
+    },
+    {
+      "path": "graphs/08_real_reliability_intervals_panel_02.png",
+      "title": "Point and interval estimates",
+      "panel": 2
+    }
+  ],
+  "12_carbon_data_fit": [
+    {
+      "path": "graphs/12_carbon_data_fit_panel_01.png",
+      "title": "Carbon strength half density",
+      "panel": 1
+    },
+    {
+      "path": "graphs/12_carbon_data_fit_panel_02.png",
+      "title": "Carbon strength half CDF",
+      "panel": 2
+    },
+    {
+      "path": "graphs/12_carbon_data_fit_panel_03.png",
+      "title": "Carbon strength half Q-Q",
+      "panel": 3
+    },
+    {
+      "path": "graphs/12_carbon_data_fit_panel_04.png",
+      "title": "Carbon comparison half density",
+      "panel": 4
+    },
+    {
+      "path": "graphs/12_carbon_data_fit_panel_05.png",
+      "title": "Carbon comparison half CDF",
+      "panel": 5
+    },
+    {
+      "path": "graphs/12_carbon_data_fit_panel_06.png",
+      "title": "Carbon comparison half Q-Q",
+      "panel": 6
+    }
+  ],
+  "09_posterior_traces": [
+    {
+      "path": "graphs/09_posterior_traces_panel_01.png",
+      "title": "Unrestricted posterior: \u03b1",
+      "panel": 1
+    },
+    {
+      "path": "graphs/09_posterior_traces_panel_02.png",
+      "title": "Restricted posterior: \u03b1",
+      "panel": 2
+    },
+    {
+      "path": "graphs/09_posterior_traces_panel_03.png",
+      "title": "Unrestricted posterior: Strength rate a",
+      "panel": 3
+    },
+    {
+      "path": "graphs/09_posterior_traces_panel_04.png",
+      "title": "Restricted posterior: Strength rate a",
+      "panel": 4
+    },
+    {
+      "path": "graphs/09_posterior_traces_panel_05.png",
+      "title": "Unrestricted posterior: Stress rate b",
+      "panel": 5
+    },
+    {
+      "path": "graphs/09_posterior_traces_panel_06.png",
+      "title": "Restricted posterior: Stress rate b",
+      "panel": 6
+    },
+    {
+      "path": "graphs/09_posterior_traces_panel_07.png",
+      "title": "Unrestricted posterior: Reliability R",
+      "panel": 7
+    },
+    {
+      "path": "graphs/09_posterior_traces_panel_08.png",
+      "title": "Restricted posterior: Reliability R",
+      "panel": 8
+    }
+  ],
+  "10_parameter_posteriors": [
+    {
+      "path": "graphs/10_parameter_posteriors_panel_01.png",
+      "title": "\u03b1",
+      "panel": 1
+    },
+    {
+      "path": "graphs/10_parameter_posteriors_panel_02.png",
+      "title": "Strength rate a",
+      "panel": 2
+    },
+    {
+      "path": "graphs/10_parameter_posteriors_panel_03.png",
+      "title": "Stress rate b",
+      "panel": 3
+    }
+  ],
+  "11_predictive_order_sensitivity": [
+    {
+      "path": "graphs/11_predictive_order_sensitivity_panel_01.png",
+      "title": "Predictive retained failures",
+      "panel": 1
+    },
+    {
+      "path": "graphs/11_predictive_order_sensitivity_panel_02.png",
+      "title": "Predictive largest record",
+      "panel": 2
+    },
+    {
+      "path": "graphs/11_predictive_order_sensitivity_panel_03.png",
+      "title": "Acquisition-order sensitivity",
+      "panel": 3
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+\subsubsection{Results for the model parameters}\label{sec:parameter-results}
+Reliability depends on the rate ratio, but the common shape and individual rates are also estimated from the retained observations. The next three tables therefore report their point-estimation errors. These are different targets with different scales. An MSE for $a$ should not be compared numerically with an MSE for $R$ as if both measured the same quantity.
+
+\input{tables/parameter_shape.tex}
+\input{tables/parameter_strength_rate.tex}
+\input{tables/parameter_stress_rate.tex}
+
+All table entries first summarize the 300 replications within a scenario and then average over the 16 scenarios in a regime. Thus the root mean squared error column is an average of scenario RMSE values, rather than the square root of the displayed average MSE. Detailed results retain each scenario separately. Averaging is useful for a short comparison, but it can hide variation between shapes, sizes and sampling designs.
+
+The order assumption acts directly on the two rates. When it is false, pooling or truncation changes their estimates and can also change the fitted common shape. A prior may reduce a variance while shifting an estimate away from the truth. This is why the comparison uses MSE as well as bias and avoids calling one method best for every target.
+
+\input{tables/simulation_findings.tex}
+
+\subsubsection{Information retained under each protocol}\label{sec:retained-information}
+The starting number of specimens is not the observed failure count. Type-I stopping can occur before the target. Adaptive Type II continues until its target is reached. Both experiments include censoring information in their exposure terms, but they do not retain the same failures or have the same duration.
+\input{tables/observed_failures.tex}
+The histograms in the simulation figures show this difference directly. Under adaptive Type II the totals are fixed at 42 or 84 failures because there are three blocks. Under Type I the failure count varies. More observed failures do not by themselves establish that one design is preferable, since test duration and withdrawals also change.

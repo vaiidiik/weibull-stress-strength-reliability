@@ -4,72 +4,111 @@
 
 DA2141, Mehta Family School of Data Science and AI, IIT Guwahati
 
-This project estimates the probability that at least three of five component strengths exceed one common random stress. Strength and stress have Weibull distributions with a common shape. Strength observations are progressively censored in blocks, and stress observations are upper k-records.
+This project studies a system that works when at least three of five component strengths exceed one common stress. Strength and stress follow Weibull distributions with a common shape. Strength observations are progressively censored in blocks, and stress observations are upper k-records.
 
-The comparison includes maximum likelihood and Bayesian estimates, both with and without the order restriction that strength is stochastically larger than stress. The Bayesian model uses a dependent gamma-Dirichlet prior.
+Start with the [report](Project_Report.pdf). The [executed notebook](code/Vaidik_Maheshwari_Anant_Gupta_DA2141.ipynb) contains the calculations and saved outputs. The [LaTeX source](latex/main.tex) follows the supplied article layout.
 
-## Main files
+## What we did
 
-| File or folder | Purpose |
+1. Derived the system reliability and the likelihood for the two observation schemes.
+2. Calculated unrestricted and ordered maximum likelihood estimates.
+3. Used a dependent gamma-Dirichlet prior to calculate both Bayesian cases.
+4. Compared point errors and asymptotic, equal-tail and numerical HPD intervals in 48 simulation settings, with 300 replications each.
+5. Analyzed published jute-fibre and carbon-fibre measurements, with fit checks and a reproducible retrospective sampling design.
+6. Examined prior, protocol and acquisition-order sensitivity, and checked posterior and numerical calculations.
+
+The report includes pseudocode for data generation, the Monte Carlo comparison and posterior calculation. It also contains the important graphs, parameter and reliability results, retained observations, data insights and limitations. The code itself is kept in the notebook and Python files.
+
+## Repository layout
+
+```text
+Project_Report.pdf
+README.md
+latex/
+    main.tex
+    generic.sty
+    reference.bib
+    sections/
+    tables/
+graphs/
+data/
+    raw/
+    processed/
+    results/
+code/
+    Vaidik_Maheshwari_Anant_Gupta_DA2141.ipynb
+    analysis.py
+    run_notebook.py
+    prepare_graphs.py
+    prepare_report.py
+    build_notebook.py
+    requirements.txt
+    notes/
+```
+
+| Item | Purpose |
 |---|---|
-| [Project report](reports/Project_Report.pdf) | The paper to read first: theory, simulation, data analysis and conclusions |
-| [Jupyter notebook](Vaidik_Maheshwari_Anant_Gupta_DA2141.ipynb) | Executed calculations, tables and graphs |
-| [LaTeX manuscript](manuscript/main.tex) | Editable report following the shared article outline |
-| [Bibliography](manuscript/reference.bib) | References cited in the manuscript |
-| [analysis.py](analysis.py) | Statistical functions used in the notebook |
-| [data](data) | Transcribed measurements, block allocations and retained observations |
-| [results](results) | Simulation results, estimates, intervals and numerical checks |
-| [figures](figures) | Figures saved by the notebook as PNG and PDF |
-| [Derivations](reports/derivations.md) | Additional mathematical details |
-| [Literature review](reports/literature_review.md) | How the supplied articles were used |
+| [Report](Project_Report.pdf) | Main document for reading and submission |
+| [LaTeX folder](latex) | Complete editable report source, bibliography and tables |
+| [Graphs](graphs) | All 13 notebook figure groups, plus the 49 individual panels used in the report |
+| [Data](data) | Raw measurements, retained observations and all computed results |
+| [Code](code) | Notebook, statistical functions, execution and report preparation scripts |
 
-The `scripts` folder contains two maintenance scripts: `build_notebook.py` rebuilds the notebook source, and `prepare_report.py` creates the manuscript tables and figures from computed results. Neither is needed just to read the project.
+All graphs are stored in one folder. The report uses enlarged panels from the same figures so that axis labels and legends remain readable. The complete composite plots are also retained as PNG and PDF.
 
-## Simulation
+## Main findings
 
-There are 48 scenarios and 300 replications per scenario, giving 14,400 simulated datasets. The factors are rate order, common shape, block size, censoring protocol and record order. Every dataset is used for all four estimators.
+The order assumption is useful in some correctly ordered simulation settings, but it increases bias when false. For this 3-out-of-5 system, the ordered model cannot estimate reliability below one half. This explains its poor results when the true reliability lies below that bound.
 
-The saved results report absolute bias and mean squared error for the shape, both rates and reliability. Reliability intervals are compared by coverage and average width. These include the unrestricted asymptotic interval, Bayesian equal-tail intervals and numerical HPD intervals. Ordered MLE bootstrap coverage is checked separately in six scenarios.
+Equal-tail and HPD intervals behave differently at the equality boundary. The ordered equal-tail intervals start above one half, while numerical HPD intervals may include the boundary. Both coverage and width are reported; a narrow interval alone is not evidence of a better method.
 
-HPD intervals are obtained from an interpolated posterior density on the reliability scale. Their probability mass is checked against 0.95 and application endpoints are compared on a finer grid. They are numerical approximations for unimodal marginal densities. They are not interchangeable with equal-tail intervals.
+One jute group fails the calibrated Weibull goodness-of-fit check at 5 percent. Its estimates are therefore reported with a model-fit limitation. The additional carbon groups are compatible with the fitted Weibull model. Both applications compare laboratory breaking-strength populations in common units; they do not use measured operating loads.
 
-## Data and interpretation
+## Data and results
 
-The jute measurements are transcribed from Sultana et al., Table 10, which attributes them to Xia et al. The carbon-fibre measurements are transcribed from Newer and Alanazi, Section 5.1.1, which attributes them to Nichols and Padgett. The original experimental files were not supplied. The data folder records the source and the retrospective sampling design.
+See [data/README.md](data/README.md) for sources, scaling and the distinction between original observations, retrospective selection and simulation.
 
-One jute group fails the bootstrap-calibrated Weibull goodness-of-fit test at 5 percent, so its estimates have a stated model-fit limitation. The additional carbon groups are compatible with the fitted Weibull model. Both examples compare laboratory breaking-strength populations in the same units; neither uses measured operating loads.
+The study has 14,400 simulated datasets and four fitted estimators per dataset. `data/results/simulation_summary.csv` reports point errors for the shape, both rates and reliability. It also reports reliability interval coverage, average width and Monte Carlo uncertainty. Ordered MLE bootstrap coverage is assessed separately in six settings.
 
-An incorrect order restriction can increase bias. In the simulation's violated-order case, true reliability is below one half but the ordered model cannot estimate below one half. Boundary coverage also depends on whether an equal-tail or HPD interval is used.
+Numerical HPD intervals are shortest intervals under an interpolated reliability density, used as HPD approximations for unimodal marginals. Probability mass and grid-refinement checks are saved. They are not labelled as exact intervals.
 
-The source-use review records an access limitation for the assigned SAGE reference: its abstract was available, but its full text was not supplied. No full-text derivation from that source is claimed.
+## Running the calculations
 
-## Running the notebook
-
-The saved notebook includes its outputs and can be read without rerunning it. Python 3.14 was used for the completed run. From the project folder:
+The notebook already contains its outputs. To execute it again, run these commands from the repository root:
 
 ```bash
-python3 -m pip install -r requirements.txt
-python3 run_notebook.py
+python3 -m pip install -r code/requirements.txt
+python3 code/run_notebook.py
 ```
 
-The implementation cell sets `RUN_SIMULATION=False`. This loads the saved Monte Carlo tables and repeats the remaining calculations, including the data analyses and numerical checks. To regenerate all simulation results, change it to `RUN_SIMULATION=True` in the notebook and run all cells. Repeating the full study takes longer. Seeds and scenario settings are saved.
+Python 3.14 was used for the completed run. The implementation cell sets `RUN_SIMULATION=False`, which loads the saved Monte Carlo tables and repeats the other calculations. To regenerate the full simulation, set it to `True` in the notebook and run all cells. The prior, master seed and scenario settings are fixed in the code.
 
-The mathematical explanations are written in Markdown cells.
+`code/analysis.py` contains the same statistical functions as the notebook implementation cell. Raw records are not treated as independent Weibull observations. The censoring likelihood uses actual withdrawals and terminal survivors.
 
-## Building the report
+## Preparing the report
 
-After running the notebook, update the manuscript tables and figures with:
+After executing the notebook, refresh the report graphs and tables from the saved results:
 
 ```bash
-python3 scripts/prepare_report.py
+python3 code/prepare_graphs.py
+python3 code/prepare_report.py
 ```
 
-Upload the contents of `manuscript` to Overleaf and select `main.tex`. This includes `reference.bib`, `generic.sty`, `tables` and `figures`. Compile with the normal LaTeX and BibTeX workflow, then save the PDF as `reports/Project_Report.pdf`. With an existing local TeX installation, `latexmk -pdf main.tex` can be run from the manuscript folder.
+For Overleaf, upload the `latex` and `graphs` folders with their relative structure preserved, then select `latex/main.tex` as the main document. The data and code folders are not needed just to compile the report.
 
-The report follows the shared A4, 11-point article layout, margins and section order. The supplied `generic.sty` contains only commented settings, so it adds no active formatting rules. The included file is a minimal comment-free package with the same name.
+With an existing local TeX installation, run from the repository root:
 
-Rebuilding the notebook with `python3 scripts/build_notebook.py` replaces its saved outputs. Run it only when changing notebook structure, then execute the notebook again.
+```bash
+latexmk -pdf -cd latex/main.tex
+cp latex/main.pdf Project_Report.pdf
+```
 
-## Local material
+The document uses the supplied A4, 11-point article format and margins. Its main sections remain Introduction, Maximum Likelihood Estimation, Bayesian Estimation, Numerical Illustration and Conclusion. The supplied `generic.sty` had no active formatting rules; the included file is a minimal package with the same name.
 
-Original supplied papers, extracted text and the assignment list are kept in the ignored `sources` folder. Earlier report versions and obsolete build files are kept in the ignored `local_archive` folder. They are not part of the GitHub submission.
+`code/build_notebook.py` is a maintenance script that rebuilds notebook source and replaces saved outputs. Use it only when changing notebook structure, then execute the notebook again.
+
+## Supporting source notes
+
+Detailed derivations and source-use notes are in [code/notes](code/notes). Original supplied papers and the assignment list remain in the ignored local `sources` folder. Earlier versions are preserved in the ignored `local_archive` folder. Neither folder is uploaded by the Git commands used for this repository.
+
+The assigned SAGE reference was available only at abstract level. Its full text was not supplied, and no inaccessible full-text derivation is claimed.
