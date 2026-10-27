@@ -31,6 +31,8 @@ def save_figure(name):
 
 
 def reliability(a, b, s=3, K=5):
+    if not isinstance(s, (int, np.integer)) or not isinstance(K, (int, np.integer)) or not 1 <= s <= K:
+        raise ValueError('The system must satisfy integer 1 <= s <= K.')
     rho = np.asarray(b) / np.asarray(a)
     return -np.expm1(sum(-np.log1p(rho / j) for j in range(s, K + 1)))
 
@@ -39,9 +41,13 @@ def removal_plan(n, m, pattern='balanced'):
     plan = np.zeros(m, dtype=int)
     if pattern == 'late':
         plan[-1] = n - m
-    else:
+    elif pattern == 'early':
+        plan[0] = n - m
+    elif pattern == 'balanced':
         for i in range(n - m):
             plan[i % max(m - 1, 1)] += 1
+    else:
+        raise ValueError('Use balanced, early or late withdrawals.')
     return plan
 
 
@@ -74,7 +80,20 @@ def censor_block(values, m, T, plan, rng, mode='typeI'):
     exposure_x = np.r_[x, terminal] if terminal_count else x.copy()
     exposure_w = np.r_[1 + R, terminal_count] if terminal_count else 1 + R
     assert len(x) + int(R.sum()) + terminal_count == len(values)
-    return dict(x=x, R=R, terminal=terminal, terminal_count=terminal_count, z=exposure_x, w=exposure_w, n=len(values), m=m, T=T, mode=mode, case=case)
+    return dict(
+        x=x,
+        R=R,
+        terminal=terminal,
+        terminal_count=terminal_count,
+        z=exposure_x,
+        w=exposure_w,
+        n=len(values),
+        m=m,
+        T=T,
+        mode=mode,
+        case=case,
+        plan=np.asarray(plan,dtype=int).copy(),
+    )
 
 
 def make_data(blocks, records, k):
@@ -86,7 +105,20 @@ def make_data(blocks, records, k):
         raise ValueError('A finite joint MLE requires strength failures and at least two distinct records.')
     if np.any(z <= 0) or np.any(y <= 0) or np.any(np.diff(y) <= 0):
         raise ValueError('Positive observations and strictly increasing records are required.')
-    return dict(blocks=blocks, x=x, z=z, w=w, y=y, k=k, d=len(x), r=len(y), C=np.log(x).sum() + np.log(y).sum(), lx=np.log(z), ly=np.log(y), q=len(x) + len(y))
+    return dict(
+        blocks=blocks,
+        x=x,
+        z=z,
+        w=w,
+        y=y,
+        k=k,
+        d=len(x),
+        r=len(y),
+        C=np.log(x).sum() + np.log(y).sum(),
+        lx=np.log(z),
+        ly=np.log(y),
+        q=len(x) + len(y),
+    )
 
 
 def exposures(alpha, data):
@@ -136,7 +168,7 @@ def observed_information(theta, data):
     return np.array([[data['q'] / alpha ** 2 + a * App + b * Bpp, Ap, Bp], [Ap, data['d'] / a ** 2, 0], [Bp, 0, data['r'] / b ** 2]])
 
 
-def asymptotic_intervals(theta, data):
+def asymptotic_intervals(theta, data, s=3, K=5):
     covariance = np.linalg.inv(observed_information(theta, data))
     if np.any(np.linalg.eigvalsh(covariance) <= 0):
         raise RuntimeError('Observed information is not positive definite.')
@@ -144,7 +176,7 @@ def asymptotic_intervals(theta, data):
     grad = np.array([0., -1 / theta[1], 1 / theta[2]])
     se = np.sqrt(grad @ covariance @ grad)
     rho_ci = np.exp(np.log(theta[2] / theta[1]) + np.array([-1, 1]) * stats.norm.ppf(.975) * se)
-    return parameter_ci, reliability(np.ones(2), rho_ci)
+    return parameter_ci, reliability(np.ones(2), rho_ci, s, K)
 
 
 def weighted_quantile(values, weights, probs=(.025, .975)):
@@ -187,7 +219,7 @@ def hpd_interval(nodes, log_density, lower, upper, boundary_log_density=None, ma
 _QUADRATURE = {}
 
 
-def posterior_grid(data, restricted=False, prior=None, na=110, np_=160):
+def posterior_grid(data, restricted=False, prior=None, na=110, np_=160, s=3, K=5):
     pr = PRIOR if prior is None else prior
     key = (na, np_, restricted)
     if key not in _QUADRATURE:
@@ -211,25 +243,41 @@ def posterior_grid(data, restricted=False, prior=None, na=110, np_=160):
     normalizer = special.logsumexp(logw)
     logw -= normalizer
     weights = np.exp(logw)
-    R = reliability(p, 1 - p)
+    R = reliability(p, 1 - p, s, K)
     means = np.array([np.sum(weights * alpha[:, None]), np.sum(weights * p * Q / H), np.sum(weights * (1 - p) * Q / H), np.sum(weights * R)])
     pweights = weights.sum(axis=0)
     reliability_ci = weighted_quantile(R, pweights)
     rho = (1-p)/p
-    log_derivative = sum(np.log(j)-np.log(j+rho) for j in range(3,6)) + np.log(sum(1/(j+rho) for j in range(3,6))) - 2*np.log(p)
+    log_derivative = sum(np.log(j)-np.log(j+rho) for j in range(s,K+1)) + np.log(sum(1/(j+rho) for j in range(s,K+1))) - 2*np.log(p)
     log_density = special.logsumexp(logw,axis=0)-logwp-log_derivative
     boundary = None
     if restricted:
         Hb = pr['b0'] + .5*A + .5*B
         log_boundary_p = special.logsumexp((data['q']+pr['a1']-1)*np.log(alpha)+(alpha-1)*data['C']-pr['b1']*alpha+logwa-Q*np.log(Hb))
         log_boundary_p += (data['q']+pr['c1']+pr['c2']-2)*np.log(.5)-normalizer
-        derivative_boundary = np.prod(np.arange(3,6)/(np.arange(3,6)+1))*np.sum(1/(np.arange(3,6)+1))/.25
+        derivative_boundary = np.prod(np.arange(s,K+1)/(np.arange(s,K+1)+1))*np.sum(1/(np.arange(s,K+1)+1))/.25
         boundary = log_boundary_p-np.log(derivative_boundary)
-    hpd,hpd_mass = hpd_interval(R,log_density,.5 if restricted else 0.,1.,boundary)
+    hpd,hpd_mass = hpd_interval(R,log_density,float(reliability(1.,1.,s,K)) if restricted else 0.,1.,boundary)
 
     linex = {c: -special.logsumexp(np.log(pweights + 1e-300) - c * R) / c for c in [1.5, -1.5]}
     edge_mass = weights[:2].sum() + weights[-2:].sum()
-    return dict(alpha=alpha, p=p, H=H, Q=Q, weights=weights, means=means, ci=reliability_ci, hpd=hpd, hpd_mass=hpd_mass, linex=linex, edge_mass=edge_mass, prior=pr, restricted=restricted)
+    return dict(
+        alpha=alpha,
+        p=p,
+        H=H,
+        Q=Q,
+        weights=weights,
+        means=means,
+        ci=reliability_ci,
+        hpd=hpd,
+        hpd_mass=hpd_mass,
+        linex=linex,
+        edge_mass=edge_mass,
+        prior=pr,
+        restricted=restricted,
+        s=s,
+        K=K,
+    )
 
 
 def posterior_draws(grid, rng, size=30000):
@@ -237,7 +285,7 @@ def posterior_draws(grid, rng, size=30000):
     ia, ip = np.unravel_index(selected, grid['weights'].shape)
     t = rng.gamma(grid['Q'], 1 / grid['H'][ia, ip])
     p = grid['p'][ip]
-    return np.column_stack([grid['alpha'][ia], p * t, (1 - p) * t, reliability(p, 1 - p)])
+    return np.column_stack([grid['alpha'][ia], p * t, (1 - p) * t, reliability(p, 1 - p, grid.get('s',3), grid.get('K',5))])
 
 
 def simulate_data(theta, n=20, g=3, m_fraction=.7, T_quantile=.65, k=2, r=8, mode='typeI', pattern='balanced', rng=None):
@@ -253,7 +301,7 @@ def simulate_data(theta, n=20, g=3, m_fraction=.7, T_quantile=.65, k=2, r=8, mod
     return make_data(blocks, records, k)
 
 
-def bootstrap_reliability(theta, template, rng, B=500, restricted=False):
+def bootstrap_reliability(theta, template, rng, B=500, restricted=False, s=3, K=5):
     values = []
     failure_count = 0
     for _ in range(B):
@@ -261,11 +309,11 @@ def bootstrap_reliability(theta, template, rng, B=500, restricted=False):
         blocks = []
         for block in template['blocks']:
             raw = (rng.exponential(size=block['n']) / a) ** (1 / alpha)
-            blocks.append(censor_block(raw, block['m'], block['T'], removal_plan(block['n'], block['m'], block.get('pattern', 'balanced')), rng, block['mode']))
+            blocks.append(censor_block(raw, block['m'], block['T'], block.get('plan',removal_plan(block['n'], block['m'], block.get('pattern', 'balanced'))), rng, block['mode']))
         y = (np.cumsum(rng.exponential(scale=1 / (template['k'] * b), size=template['r']))) ** (1 / alpha)
         try:
             estimate = fit_mle(make_data(blocks, y, template['k']), restricted)
-            values.append(reliability(*estimate[1:]))
+            values.append(reliability(*estimate[1:],s=s,K=K))
         except (ValueError, RuntimeError):
             failure_count += 1
     if len(values) < .95 * B:
@@ -273,7 +321,7 @@ def bootstrap_reliability(theta, template, rng, B=500, restricted=False):
     return np.asarray(values), failure_count
 
 
-def run_simulation(repetitions=300):
+def run_simulation(repetitions=1000):
     records = []
     scenarios = []
     sid = 0
@@ -285,7 +333,22 @@ def run_simulation(repetitions=300):
                         sid += 1
                         truth = np.array([alpha, a, b, reliability(a, b)])
                         r = 6 if n == 20 else 12
-                        scenarios.append(dict(scenario=sid, regime=regime, alpha=alpha, lambda_X=a, lambda_Y=b, n_per_block=n, blocks=3, m_per_block=int(.7*n), T_quantile=.65, record_k=k, record_count=r, censoring=mode, truth_R=truth[-1], repetitions=repetitions))
+                        scenarios.append(dict(
+                            scenario=sid,
+                            regime=regime,
+                            alpha=alpha,
+                            lambda_X=a,
+                            lambda_Y=b,
+                            n_per_block=n,
+                            blocks=3,
+                            m_per_block=int(.7*n),
+                            T_quantile=.65,
+                            record_k=k,
+                            record_count=r,
+                            censoring=mode,
+                            truth_R=truth[-1],
+                            repetitions=repetitions,
+                        ))
                         rng = np.random.default_rng(SEED + sid * 10000)
                         for rep in range(repetitions):
                             data = simulate_data(truth[:3], n=n, k=k, r=r, mode=mode, rng=rng)
@@ -296,7 +359,22 @@ def run_simulation(repetitions=300):
                             _, aci = asymptotic_intervals(unrestricted, data)
                             fits = [('MLE', np.r_[unrestricted, reliability(*unrestricted[1:])], aci), ('Restricted MLE', np.r_[restricted, reliability(*restricted[1:])], None), ('Bayes', grid_u['means'], grid_u['ci']), ('Restricted Bayes', grid_o['means'], grid_o['ci'])]
                             for method, est, ci in fits:
-                                row = dict(scenario=sid, replicate=rep+1, method=method, observed_failures=data['d'], time_stopped_blocks=sum(x['case']=='time' for x in data['blocks']), pooled=bool(np.isclose(restricted[1], restricted[2])), alpha=est[0], lambda_X=est[1], lambda_Y=est[2], R_3_5=est[3], lower=np.nan if ci is None else ci[0], upper=np.nan if ci is None else ci[1], covered=np.nan if ci is None else float(ci[0] <= truth[-1] <= ci[1]), grid_edge_mass=max(grid_u['edge_mass'],grid_o['edge_mass']))
+                                row = dict(
+                                    scenario=sid,
+                                    replicate=rep+1,
+                                    method=method,
+                                    observed_failures=data['d'],
+                                    time_stopped_blocks=sum(x['case']=='time' for x in data['blocks']),
+                                    pooled=bool(np.isclose(restricted[1], restricted[2])),
+                                    alpha=est[0],
+                                    lambda_X=est[1],
+                                    lambda_Y=est[2],
+                                    R_3_5=est[3],
+                                    lower=np.nan if ci is None else ci[0],
+                                    upper=np.nan if ci is None else ci[1],
+                                    covered=np.nan if ci is None else float(ci[0] <= truth[-1] <= ci[1]),
+                                    grid_edge_mass=max(grid_u['edge_mass'],grid_o['edge_mass']),
+                                )
                                 if method in ['Bayes','Restricted Bayes']:
                                     grid = grid_u if method=='Bayes' else grid_o
                                     row.update(hpd_lower=grid['hpd'][0],hpd_upper=grid['hpd'][1],hpd_covered=float(grid['hpd'][0]<=truth[-1]<=grid['hpd'][1]),hpd_mass=grid['hpd_mass'])
@@ -312,7 +390,19 @@ def run_simulation(repetitions=300):
         truth = design.loc[design.scenario==scenario, ['alpha','lambda_X','lambda_Y','truth_R']].iloc[0].to_numpy(float)
         for j, parameter in enumerate(PARAMETERS):
             err = group[parameter].to_numpy() - truth[j]
-            row = dict(scenario=scenario,method=method,parameter=parameter,truth=truth[j],mean=group[parameter].mean(),bias=err.mean(),absolute_bias=abs(err.mean()),mse=np.mean(err**2),rmse=np.sqrt(np.mean(err**2)),bias_mcse=err.std(ddof=1)/np.sqrt(len(err)),mse_mcse=(err**2).std(ddof=1)/np.sqrt(len(err)))
+            row = dict(
+                scenario=scenario,
+                method=method,
+                parameter=parameter,
+                truth=truth[j],
+                mean=group[parameter].mean(),
+                bias=err.mean(),
+                absolute_bias=abs(err.mean()),
+                mse=np.mean(err**2),
+                rmse=np.sqrt(np.mean(err**2)),
+                bias_mcse=err.std(ddof=1)/np.sqrt(len(err)),
+                mse_mcse=(err**2).std(ddof=1)/np.sqrt(len(err)),
+            )
             if parameter=='R_3_5' and method!='Restricted MLE':
                 cp = group.covered.mean()
                 row.update(coverage=cp, coverage_mcse=np.sqrt(cp*(1-cp)/len(group)),average_length=(group.upper-group.lower).mean())
@@ -352,7 +442,16 @@ def goodness_of_fit(x, y, rng, B=1000):
             simulated=(rng.exponential(size=len(sample))/rate)**(1/alpha)
             ash,rsh,_=iid_fit(simulated)
             bs.append(ks_stat(simulated,ash,rsh))
-        rows.append(dict(sample=label,n=len(sample),alpha=alpha,rate=rate,KS=observed,bootstrap_p=(1+np.sum(np.array(bs)>=observed))/(B+1),bootstrap_B=B,AIC=4-2*ll))
+        rows.append(dict(
+            sample=label,
+            n=len(sample),
+            alpha=alpha,
+            rate=rate,
+            KS=observed,
+            bootstrap_p=(1+np.sum(np.array(bs)>=observed))/(B+1),
+            bootstrap_B=B,
+            AIC=4-2*ll,
+        ))
     n1,n2=len(x),len(y)
     def pooled(logalpha):
         alpha=np.exp(logalpha)
@@ -375,7 +474,16 @@ def goodness_of_fit(x, y, rng, B=1000):
             return -(n1*np.log(ash*aa)+n2*np.log(ash*bb)+(ash-1)*(np.log(xx).sum()+np.log(yy).sum())-n1-n2)
         null=optimize.minimize_scalar(null_obj,bounds=(np.log(.02),np.log(30)),method='bounded')
         lrstats.append(2*(iid_fit(xx)[2]+iid_fit(yy)[2]+null.fun))
-    test=dict(LR=LR,df=1,asymptotic_p=stats.chi2.sf(LR,1),bootstrap_p=(1+np.sum(np.array(lrstats)>=LR))/(B+1),common_shape=common,lambda_X=a,lambda_Y=b,B=B)
+    test=dict(
+        LR=LR,
+        df=1,
+        asymptotic_p=stats.chi2.sf(LR,1),
+        bootstrap_p=(1+np.sum(np.array(lrstats)>=LR))/(B+1),
+        common_shape=common,
+        lambda_X=a,
+        lambda_Y=b,
+        B=B,
+    )
     return pd.DataFrame(rows),test
 
 
@@ -409,7 +517,7 @@ def collapsed_logposterior(z,data,restricted=False,prior=None):
     return value+z[0]+np.log(pmax)+special.log_expit(z[1])+special.log_expit(-z[1])
 
 
-def mcmc(data,restricted=False,chains=4,steps=15000,burn=4000):
+def mcmc(data,restricted=False,chains=4,steps=15000,burn=4000,s=3,K=5):
     outputs=[]
     acceptance=[]
     mode=optimize.minimize(lambda z:-collapsed_logposterior(z,data,restricted),[np.log(1.5),-.5],method='BFGS')
@@ -442,13 +550,13 @@ def mcmc(data,restricted=False,chains=4,steps=15000,burn=4000):
                 p=(.5 if restricted else 1.)*special.expit(current[1])
                 A,B=exposures(alpha,data)
                 t=rng.gamma(PRIOR['a0']+data['q'],1/(PRIOR['b0']+p*A+(1-p)*B))
-                draws.append([alpha,p*t,(1-p)*t,reliability(p,1-p)])
+                draws.append([alpha,p*t,(1-p)*t,reliability(p,1-p,s,K)])
         outputs.append(np.asarray(draws))
         acceptance.append(accepts/(steps-burn))
     return np.array(outputs),np.array(acceptance)
 
 
-def chain_diagnostics(chains):
+def chain_diagnostics(chains,s=3,K=5):
     m,n,p=chains.shape
     half=n//2
     split=np.concatenate([chains[:,:half],chains[:,-half:]],axis=0)
@@ -472,4 +580,4 @@ def chain_diagnostics(chains):
             pairs.append(pair if not pairs else min(pair,pairs[-1]))
         tau=max(-1+2*sum(pairs),1.)
         ess.append(mm*nn/tau)
-    return pd.DataFrame({'parameter':PARAMETERS,'split_Rhat':rhat,'ESS':ess,'mean':chains.mean(axis=(0,1)),'MCSE':chains.std(axis=(0,1),ddof=1)/np.sqrt(ess)})
+    return pd.DataFrame({'parameter':PARAMETERS[:3]+[f'R_{s}_{K}'],'split_Rhat':rhat,'ESS':ess,'mean':chains.mean(axis=(0,1)),'MCSE':chains.std(axis=(0,1),ddof=1)/np.sqrt(ess)})

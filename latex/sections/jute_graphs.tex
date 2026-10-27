@@ -1,11 +1,6 @@
-\subsubsection{Jute fit and retained-data graphs}
-The density plots compare histograms of the complete measurements with fitted Weibull densities. Histogram shape depends on binning, so a visual match alone is not a test. The CDF panels compare all ordered observations with fitted cumulative probabilities. The Q-Q panels show where sample quantiles differ from those predicted by the fitted model.
-
-\pairplot{06_real_data_fit_panel_01.png}{06_real_data_fit_panel_04.png}{Jute complete-data histograms and fitted densities: 15 mm strength group above and 20 mm comparison group below.}{fig:jute-density}
-\pairplot{06_real_data_fit_panel_02.png}{06_real_data_fit_panel_05.png}{Jute empirical and fitted cumulative distribution functions for the same two groups.}{fig:jute-cdf}
-\pairplot{06_real_data_fit_panel_03.png}{06_real_data_fit_panel_06.png}{Jute Weibull Q-Q plots. Their deviations should be read alongside the calibrated tests, especially the rejection in the 15 mm group.}{fig:jute-qq}
-These complete-data checks use every measurement in the two groups. They are separate from the later retained-data likelihood. The failure plot below shows only observed failures, with ring size indicating the actual number withdrawn at a failure. The terminal survivors still enter the likelihood through their survival at the time limit. The record plot shows both the complete comparison sequence and the subset actually used as upper records.
-
-\pairplot{07_real_sampling_panel_01.png}{07_real_sampling_panel_02.png}{Retrospective jute sampling: strength failures with actual withdrawals, and extraction of the first six upper 2-records from the printed comparison ordering.}{fig:jute-sampling}
-
+\subsubsection{Jute fit and retained observations}
+The Q-Q plots use all complete measurements and must be read with the calibrated fit tests. The rejected fit in the 15 mm group remains a limitation. Density and CDF versions are saved in the notebook and graphs folder.
+\pairplot{06_real_data_fit_panel_03.png}{06_real_data_fit_panel_06.png}{Jute Weibull Q-Q plots for the 15 mm and 20 mm groups.}{fig:jute-qq}
+The sampling plots identify which observations enter the likelihood. Ring size shows actual withdrawals; terminal survivors contribute survival information at the time limit. The stress plot distinguishes the complete sequence from the retained upper records.
+\pairplot{07_real_sampling_panel_01.png}{07_real_sampling_panel_02.png}{Jute strength censoring and upper 2-record extraction.}{fig:jute-sampling}
 \FloatBarrier

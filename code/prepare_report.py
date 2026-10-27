@@ -48,11 +48,11 @@ table('simulation_intervals.tex','Coverage probability and average width of 95 p
 pd.DataFrame(intervals).to_csv(ROOT/'data/results/interval_comparison.csv',index=False)
 boundary=system[(system.regime=='boundary')&(system.method=='Restricted Bayes')]
 (TABLES/'hpd_findings.tex').write_text(f"At the equality boundary, ordered equal-tail intervals have coverage {boundary.coverage.mean():.3f}, whereas ordered numerical HPD intervals have coverage {boundary.hpd_coverage.mean():.3f}. Their mean widths are {boundary.average_length.mean():.3f} and {boundary.hpd_average_length.mean():.3f}, respectively. The HPD calculation allows the lower endpoint to equal one half. This explains why its boundary coverage differs from the equal-tail result; it does not establish nominal coverage in every scenario.\n")
-boot=pd.read_csv(ROOT/'data/results/restricted_bootstrap_coverage.csv')
+boot=pd.read_csv(ROOT/'data/results/bootstrap_extended_summary.csv')
 rows=[]
-for row in boot.itertuples():
-    rows.append([row.regime.capitalize(),'Type I' if row.censoring=='typeI' else 'Adaptive II',f'{row.coverage:.3f}',f'{row.coverage_mcse:.3f}',f'{row.average_length:.3f}'])
-table('bootstrap.tex','Ordered MLE bootstrap intervals in six selected scenarios: 100 outer datasets and 199 resamples per dataset. MCSE refers to coverage.','tab:bootstrap',['Rate regime','Protocol','CP','MCSE','AW'],rows,'llrrr')
+for row in boot[boot.method=='Ordered MLE Boot-p'].itertuples():
+    rows.append([row.regime.capitalize(),str(row.n),'Type I' if row.protocol=='typeI' else 'Adaptive II',f'{row.coverage:.3f}',f'{row.coverage_mcse:.3f}',f'{row.average_width:.3f}'])
+table('bootstrap.tex','Ordered MLE percentile-bootstrap intervals in 12 settings: 500 outer datasets and 399 resamples per dataset. MCSE refers to coverage.','tab:bootstrap',['Regime','$n$','Protocol','CP','MCSE','AW'],rows,'lllr rr'.replace(' ',''))
 jute=pd.read_csv(ROOT/'data/results/goodness_of_fit.csv')
 carbon=pd.read_csv(ROOT/'data/results/carbon_goodness_of_fit.csv')
 rows=[]
@@ -154,7 +154,7 @@ for i in range(0,len(carbon_raw),8):
     values=[f'{v:.2f}' for v in carbon_raw[i:i+8]]
     rows.append([f'{i+1}--{min(i+8,len(carbon_raw))}']+values+['']*(8-len(values)))
 table('carbon_complete.tex','All 100 carbon-fibre observations in original printed order, in GPa. Each row contains consecutive source positions.','tab:carbon-complete',['Positions']+[str(i) for i in range(1,9)],rows,'lrrrrrrrr')
-lines=[r'\begin{longtable}{rrrllrr}',r'\caption{Complete 48-scenario design. Every row has three strength blocks and 300 independent replications. O, B and V mean ordered, boundary and violated.}\label{tab:design}\\',r'\toprule',r'ID & $\alpha$ & $n$ & Protocol & Regime & $k$ & $r$ \\',r'\midrule',r'\endfirsthead',r'\toprule',r'ID & $\alpha$ & $n$ & Protocol & Regime & $k$ & $r$ \\',r'\midrule',r'\endhead']
+lines=[r'\begin{longtable}{rrrllrr}',r'\caption{Complete 48-scenario design. Every row has three strength blocks and 1000 independent replications. O, B and V mean ordered, boundary and violated.}\label{tab:design}\\',r'\toprule',r'ID & $\alpha$ & $n$ & Protocol & Regime & $k$ & $r$ \\',r'\midrule',r'\endfirsthead',r'\toprule',r'ID & $\alpha$ & $n$ & Protocol & Regime & $k$ & $r$ \\',r'\midrule',r'\endhead']
 for row in design.itertuples():
     lines.append(' & '.join([str(row.scenario),f'{row.alpha:.1f}',str(row.n_per_block),'Type I' if row.censoring=='typeI' else 'Adaptive II',{'ordered':'O','boundary':'B','violated':'V'}[row.regime],str(row.record_k),str(row.record_count)])+r' \\')
 lines.extend([r'\bottomrule',r'\end{longtable}'])
@@ -170,7 +170,7 @@ def scientific(value):
     mantissa,exponent=f'{value:.2e}'.split('e')
     return '$'+mantissa+r'\times10^{'+str(int(exponent))+'}$'
 
-rows=[['Reliability integral versus product',scientific(np.max(np.abs(verification.formula-verification.integral))),'Same theoretical target'],['Direct-system simulation versus product',f'{np.max(np.abs(verification.system_MC-verification.formula)):.5f}','Within the stated Monte Carlo checks'],['Simulation reliability means, finer grid',scientific(refine.R_mean_difference.max()),'One dataset per scenario and support'],['Application means, finer grid',scientific(real_refine.maximum_mean_difference.max()),'Both posterior supports'],['Application equal-tail endpoints',scientific(real_refine.maximum_interval_difference.max()),'Both posterior supports'],['Application HPD endpoints',scientific(real_refine.maximum_hpd_difference.max()),'Both posterior supports'],['HPD posterior probability versus 0.95',scientific(np.max(np.abs(raw.hpd_mass.dropna()-.95))),'All saved Bayesian simulation fits']]
+rows=[['Reliability integral versus product',scientific(np.max(np.abs(verification.formula-verification.integral))),'Same theoretical target'],['Direct-system simulation versus product',f'{np.max(np.abs(verification.system_MC-verification.formula)):.5f}','Within the stated Monte Carlo checks'],['Simulation reliability means, finer grid',scientific(refine.R_mean_difference.max()),'One dataset per scenario and support'],['Jute means, finer grid',scientific(real_refine.maximum_mean_difference.max()),'Both posterior supports'],['Jute equal-tail endpoints',scientific(real_refine.maximum_interval_difference.max()),'Both posterior supports'],['Jute HPD endpoints',scientific(real_refine.maximum_hpd_difference.max()),'Both posterior supports'],['HPD posterior probability versus 0.95',scientific(np.max(np.abs(raw.hpd_mass.dropna()-.95))),'All saved Bayesian simulation fits']]
 table('numerical_checks.tex','Numerical comparisons used to check the calculation. Probability-mass checks refer to the interpolated density used for numerical HPD intervals.','tab:numerical-checks',['Comparison','Largest difference','Scope'],rows,r'p{.43\linewidth}rp{.30\linewidth}')
 order=pd.read_csv(ROOT/'data/results/acquisition_order_sensitivity.csv')
 (TABLES/'order_findings.tex').write_text(f"Of 200 attempted permutations, {len(order)} reach the prescribed six upper 2-records and {200-len(order)} do not. Among successful orders, posterior mean reliability ranges from {order.R.min():.4f} to {order.R.max():.4f}, with mean {order.R.mean():.4f} and standard deviation {order.R.std():.4f}. The original printed-order mean is 0.6656.\n")

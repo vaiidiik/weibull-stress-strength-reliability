@@ -3,14 +3,12 @@ There are two different questions here: whether the numerical calculations are s
 
 We checked the reliability product against direct integration of the conditional binomial probability and against complete-system simulation. The implementation of the observed information was compared with a finite-difference Hessian. The ordered profile was also compared with a separate constrained optimization. These checks reduce the chance of a coding or algebra error in the main estimates.
 
-Quadrature checks compare the selected numerical grid with a finer grid and examine the normalized mass near the shape integration limits. The data applications use a finer grid than the main simulation because there are only two examples to compute. Numerical HPD probability mass is checked against 0.95. Close agreement under grid refinement checks the numerical approximation used here; it is not a statement that all model assumptions are correct.
+Quadrature checks compare the selected numerical grid with a finer grid and examine the normalized mass near the shape integration limits. The data applications use a finer grid than the main simulation because there are few examples to compute. Numerical HPD probability mass is checked against 0.95. Close agreement under grid refinement checks the numerical approximation used here; it is not a statement that all model assumptions are correct.
 
 \input{tables/numerical_checks.tex}
 
-The independent posterior sampler uses four chains per model, with 15,000 iterations each and the first 4,000 removed as warm-up. Proposals are made in transformed coordinates so that positive parameters and the order support are respected. Conditional draws of the total rate use its Gamma distribution. The trace figures display every tenth retained iteration to keep the lines readable. The stored chains retain the full draws.
+The independent posterior sampler uses four chains per model, with 15,000 iterations each and the first 4,000 removed as warm-up. Proposals are made in transformed coordinates so that positive parameters and the order support are respected. Conditional draws of the total rate use its Gamma distribution. Trace plots and the full retained chains are saved with the notebook.
 
 \input{tables/diagnostics.tex}
 
 A trace without a long visible drift is a useful check, but it is not proof of convergence. We also compare between-chain and within-chain variation through split R-hat, and report effective sample size and Monte Carlo error. Here the largest split R-hat is about 1.0009 and the smallest effective sample size is about 3977. The sampler means agree with quadrature within the stated Monte Carlo checks. These are classical split diagnostics rather than rank-normalized versions.
-
-\input{sections/trace_graphs.tex}

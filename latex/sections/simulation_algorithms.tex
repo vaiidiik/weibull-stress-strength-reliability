@@ -1,99 +1,50 @@
-\subsubsection{Generating one dataset}\label{sec:generation}
-Algorithm~\ref{alg:data} describes the data-generation part. All initial strength lifetimes are generated first, but only failures and censoring information that would be observed under the chosen experiment are passed to the estimators. A withdrawn unit's actual lifetime is not used later in the likelihood. This prevents the estimation step from receiving information that the sampling scheme was meant to hide.
-
-For stress records we work on the cumulative-hazard scale. If $E_j$ are independent exponential variables with mean one, the generated record values are
+\subsubsection{Simulation algorithms}\label{sec:generation}
+Strength lifetimes are generated completely, but only observed failures and censoring information enter estimation. Withdrawn lifetimes are hidden. For stress records, independent unit-mean exponential variables give
 \begin{equation}
-y_j=\left(\frac{\sum_{l=1}^{j}E_l}{kb}\right)^{1/\alpha},\qquad j=1,\ldots,r.
-\label{eq:record-generation}
+y_j=\left(\frac{\sum_{l=1}^{j}E_l}{kb}\right)^{1/\alpha},\qquad j=1,\ldots,r.\label{eq:record-generation}
 \end{equation}
-This generates the marginal record values directly. It does not simulate or use inter-record waiting times. In the published-data examples we instead scan the chosen observation order and retain its actual upper k-records.
+This generates the marginal record values directly, without waiting times. Published-data examples instead scan their stated acquisition sequence.
 
 \begin{algorithm}[htbp]
-\caption{Generate a censored strength sample and stress records}\label{alg:data}
+\caption{Generate one retained dataset}\label{alg:data}
 \begin{algorithmic}[1]
-\REQUIRE True $(\alpha,a,b)$; block sizes, targets, thresholds, withdrawals; protocol; record order $k$ and count $r$
-\ENSURE Observed failures, actual withdrawals, terminal counts and $r$ stress records
+\REQUIRE $(\alpha,a,b)$, block designs, protocol, $k$ and $r$
 \FOR{each strength block $i$}
-\STATE Draw $n_i$ independent values $U$ uniformly on $(0,1)$.
-\STATE Set each initial lifetime to $[-\log(1-U)/a]^{1/\alpha}$.
-\STATE Mark all starting specimens as active; set the failure count to zero.
-\WHILE{the target number of failures has not been reached}
-\STATE Find the smallest lifetime among active specimens.
-\IF{the protocol is Type I and this lifetime exceeds $T_i$}
-\STATE Censor all active specimens at $T_i$ and stop this block.
+\STATE Generate $n_i$ lifetimes using \eqref{eq:quantile}; mark them active
+\WHILE{fewer than $m_i$ failures have been observed}
+\STATE Find the next active failure
+\IF{Type I and the next failure exceeds $T_i$}
+\STATE Censor active survivors at $T_i$ and stop the block
 \ELSE
-\STATE Record the failure and remove that specimen from the active set.
-\IF{this failure reaches the target}
-\STATE Withdraw all remaining active specimens and stop this block.
-\ELSE
-\STATE Use the planned withdrawal count; for adaptive Type II, use zero after $T_i$.
-\STATE Choose that many active survivors uniformly and withdraw them.
-\ENDIF
+\STATE Record the failure and remove that specimen
+\STATE Withdraw uniformly selected survivors using the planned count
+\STATE For adaptive Type II, use zero planned withdrawals after $T_i$
+\STATE At the target failure, withdraw all survivors and stop the block
 \ENDIF
 \ENDWHILE
-\STATE Save the actual withdrawal counts and any terminal survivors.
+\STATE Save failures, actual withdrawals and terminal survivors
 \ENDFOR
-\STATE Draw $r$ independent exponential variables $E_1,\ldots,E_r$ of mean one.
-\STATE Form $y_j$ from equation~\eqref{eq:record-generation}.
-\STATE Check specimen conservation and strictly increasing stress records.
-\STATE Return the retained observations, without hidden withdrawn lifetimes.
+\STATE Generate $r$ stress records using \eqref{eq:record-generation}
+\STATE Check specimen conservation and return only retained observations
 \end{algorithmic}
 \end{algorithm}
-
-\subsubsection{Finding estimates and comparing them}\label{sec:simulation-pseudocode}
-Algorithm~\ref{alg:simulation} describes what is found from each generated dataset. The truth is fixed within a scenario. It is not drawn from the Bayesian prior. The same observations are used for unrestricted MLE, ordered MLE, unrestricted Bayes and ordered Bayes.
 
 \begin{algorithm}[htbp]
-\caption{Monte Carlo comparison of the four estimators}\label{alg:simulation}
+\caption{Compare the four estimators}\label{alg:simulation}
 \begin{algorithmic}[1]
-\REQUIRE The 48 predeclared settings, $M=300$, fixed prior and master seed
-\ENSURE Point errors, interval coverage, interval widths and saved raw results
-\FOR{each scenario}
-\STATE Calculate true reliability from equation~\eqref{eq:reliability}.
-\STATE Start the scenario's reproducible random-number stream.
-\FOR{$l=1,\ldots,M$}
-\STATE Generate one dataset by Algorithm~\ref{alg:data}.
-\STATE Construct $A(\alpha)$, $B(\alpha)$, $C$, $d$ and $r$ using retained data.
-\STATE Maximize the unrestricted profile and calculate its rates and reliability.
-\STATE Maximize the ordered profile using pooling whenever the rates violate the order.
-\STATE Integrate the unrestricted posterior and obtain means, equal-tail and HPD intervals.
-\STATE Repeat posterior integration on the ordered support.
-\STATE Form the unrestricted log-ratio asymptotic reliability interval.
-\STATE Save point estimates, interval endpoints and indicators of coverage.
-\STATE Save the retained failure count, pooling status and numerical edge weights.
+\REQUIRE Forty-eight settings, $M=1000$, fixed prior and seed
+\FOR{each setting and replication}
+\STATE Generate one dataset by Algorithm~\ref{alg:data}
+\STATE Form $A(\alpha),B(\alpha),C,d,r$ from the retained data
+\STATE Maximize both profiles, including order-boundary pooling
+\STATE Integrate \eqref{eq:collapsed} on each posterior support
+\STATE Save means, equal-tail and numerical HPD intervals
+\STATE Save the unrestricted log-ratio ACI and error against the fixed truth
 \ENDFOR
-\STATE Calculate absolute bias, MSE and RMSE for $\alpha,a,b$ and $R$.
-\STATE Calculate coverage and average width for each reported reliability interval.
-\STATE Calculate the Monte Carlo standard errors of the performance estimates.
-\ENDFOR
-\STATE Export scenario settings, raw replications and summary tables.
-\STATE Assess ordered MLE bootstrap coverage separately in six selected settings.
+\STATE Summarize bias, MSE, coverage, width and their Monte Carlo errors
+\STATE Assess bootstrap coverage separately in twelve selected settings
 \end{algorithmic}
 \end{algorithm}
 
-The ordered MLE does not receive an ordinary normal interval at a pooled boundary. Its bootstrap comparison is separate and has fewer outer replications. Missing interval entries in the main ordered MLE table therefore do not mean zero coverage. They mean that the regular asymptotic interval was not used for that estimator.
-
-\subsubsection{Posterior and bootstrap calculations}\label{sec:computational-steps}
-Algorithm~\ref{alg:bayes} gives the numerical Bayesian steps. Integrating out the total rate $t$ first leaves only two dimensions. This is why the calculation can be repeated for all simulation settings without fitting an additional high-dimensional model.
-
-\begin{algorithm}[htbp]
-\caption{Compute Bayesian estimates and reliability intervals}\label{alg:bayes}
-\begin{algorithmic}[1]
-\REQUIRE Retained observations, joint prior and choice of ordered or unrestricted support
-\ENSURE Posterior means and 95 percent equal-tail and numerical HPD intervals
-\STATE Choose quadrature nodes for $\log\alpha$ and $p$ on the stated support.
-\STATE At every node calculate $A$, $B$, $H$ and the collapsed log posterior.
-\STATE Include quadrature weights and the Jacobian for $\log\alpha$.
-\STATE Normalize weights using a log-sum-exp calculation.
-\STATE Average $\alpha$, conditional rate means and $R(p,1-p)$ with these weights.
-\STATE Obtain the reliability marginal and its equal-tail quantiles.
-\STATE Transform the marginal density from $p$ to $R$ using $|dR/dp|$.
-\STATE Interpolate and integrate this density on its reliability support.
-\STATE Find the shortest interval of probability 0.95, also checking support endpoints.
-\STATE Check interval probability mass and compare selected fits on a finer grid.
-\end{algorithmic}
-\end{algorithm}
-
-For an ordered MLE bootstrap interval, we first fit the ordered model. We then generate a new complete experiment under that fit, apply the same censoring and record rules, and refit it. After repeating this step, the empirical 0.025 and 0.975 quantiles of bootstrap reliability estimates form the percentile interval. The real-data examples use 500 resamples; the outer coverage check uses 199 inner resamples for each of its 100 outer datasets. Reusing a complete-data iid bootstrap without the censoring and record steps would represent a different observation scheme.
-
+Posterior integration includes the log-shape Jacobian and quadrature weights. Conditional Gamma means recover the two rate means after integrating out $t$. The reliability marginal gives equal-tail intervals; transforming its density and finding the shortest 0.95 interval gives the numerical HPD approximation. Finer grids check both calculations. A pooled ordered MLE receives no invented regular-normal interval. Its bootstrap preserves the full observation scheme, as described in Section~\ref{sec:extra-bootstrap}.
 \FloatBarrier

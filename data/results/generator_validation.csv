@@ -1,0 +1,3 @@
+protocol,fast_n,complete_generation_n,fast_mean_failures,complete_mean_failures,difference_in_MCSE
+typeI,30000,3000,28.988333333333333,29.001666666666665,-0.24229536029225104
+adaptiveII,30000,3000,42.0,42.0,0.0

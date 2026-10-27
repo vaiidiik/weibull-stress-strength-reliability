@@ -1,7 +1,13 @@
-scenario,regime,censoring,outer_replications,inner_resamples,coverage,coverage_mcse,average_length,failed_inner_fits
-10,ordered,typeI,100,199,0.91,0.028618176042508364,0.37055442329670285,0
-12,ordered,adaptiveII,100,199,0.86,0.03469870314579494,0.3638875033447297,0
-26,boundary,typeI,100,199,0.94,0.023748684174075843,0.34026249708791817,0
-28,boundary,adaptiveII,100,199,0.91,0.028618176042508364,0.343433427957399,0
-42,violated,typeI,100,199,0.0,0.0,0.3209504918301393,0
-44,violated,adaptiveII,100,199,0.0,0.0,0.3055517959106114,0
+scenario,regime,n,censoring,method,outer_replications,inner_resamples,coverage,coverage_mcse,average_length,failed_inner_max
+1,ordered,20,typeI,Ordered MLE Boot-p,500,399,0.932,0.0112584190719656,0.3813782842047044,0
+2,ordered,20,adaptiveII,Ordered MLE Boot-p,500,399,0.94,0.0106207344378814,0.3732251015501835,0
+3,ordered,40,typeI,Ordered MLE Boot-p,500,399,0.974,0.0071167408270921,0.3396519581848926,0
+4,ordered,40,adaptiveII,Ordered MLE Boot-p,500,399,0.948,0.0099293504319265,0.3164586214585028,0
+5,boundary,20,typeI,Ordered MLE Boot-p,500,399,0.958,0.0089706187077592,0.3543334249776118,0
+6,boundary,20,adaptiveII,Ordered MLE Boot-p,500,399,0.95,0.0097467943448089,0.3345990473117943,0
+7,boundary,40,typeI,Ordered MLE Boot-p,500,399,0.978,0.0065598780476469,0.2793159784024091,0
+8,boundary,40,adaptiveII,Ordered MLE Boot-p,500,399,0.962,0.0085505555375074,0.2490987655707166,0
+9,violated,20,typeI,Ordered MLE Boot-p,500,399,0.0,0.0,0.3266454733868809,0
+10,violated,20,adaptiveII,Ordered MLE Boot-p,500,399,0.0,0.0,0.3032782819544898,0
+11,violated,40,typeI,Ordered MLE Boot-p,500,399,0.0,0.0,0.2524182286884478,0
+12,violated,40,adaptiveII,Ordered MLE Boot-p,500,399,0.0,0.0,0.2158745971606947,0

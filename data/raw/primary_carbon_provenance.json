@@ -1,0 +1,27 @@
+{
+  "article_doi": "10.1016/j.dib.2024.110717",
+  "dataset_doi": "10.5281/zenodo.4033353",
+  "selection_reason": "20 mm and 80 mm endpoint gauge groups, chosen before fitting",
+  "files": [
+    {
+      "gauge_mm": 20,
+      "n": 153,
+      "source_file": "Carbon 20 mm Results.xlsx",
+      "source_url": "https://zenodo.org/records/4033353/files/Carbon%2020%20mm%20Results.xlsx",
+      "md5": "5cbc89448af25c24a8d0a5f73f24d14b",
+      "field": "Max stress [MPa]",
+      "conversion": "GPa = MPa / 1000",
+      "selection": "All specimen IDs matching T<number>_S<number>; no model-based filtering"
+    },
+    {
+      "gauge_mm": 80,
+      "n": 153,
+      "source_file": "Carbon 80 mm Results.xlsx",
+      "source_url": "https://zenodo.org/records/4033353/files/Carbon%2080%20mm%20Results.xlsx",
+      "md5": "b68cbc9e4f915a6122a46899015e36fa",
+      "field": "Max stress [MPa]",
+      "conversion": "GPa = MPa / 1000",
+      "selection": "All specimen IDs matching T<number>_S<number>; no model-based filtering"
+    }
+  ]
+}

@@ -11,12 +11,12 @@ def md(text):
 def code(text):
     cells.append(nbformat.v4.new_code_cell(text.strip()))
 
-md((root/'code/notes/derivations.md').read_text().split('## 1.')[0]+'''\nRun all cells in order. The notebook is stored in code; datasets and results are in the project data folder. The notebook retains computed outputs and exports results, figures and datasets. The saved outputs are the computed project results. Set RUN_SIMULATION=True in the implementation cell to repeat all 14,400 simulated datasets. The default loads the saved Monte Carlo tables and repeats the other calculations.\n\n| Requirement | Where it is fulfilled |\n|---|---|\n| Unrestricted and restricted MLEs | Sections 5-6; implemented profile fits and real-data/Monte Carlo tables |\n| Joint Bayesian priors | Sections 7-8; dependent gamma-Dirichlet prior with a_0=2 and c_1+c_2=4 |\n| Unrestricted and ordered Bayesian estimates | Support-specific quadrature, posterior means, LINEX, credible intervals and checked sampling |\n| Complete simulation study | 48 scenarios, 300 replications each, all four estimators, parameter/reliability errors, interval coverage and MCSEs |\n| Suitable-data validation | Published 15 mm/20 mm jute groups, calibrated fit checks, retained observations, inference, sensitivity and predictive checks |''')
+md((root/'code/notes/derivations.md').read_text().split('## 1.')[0]+'''\nRun all cells in order. The notebook is stored in code; datasets and results are in the project data folder. The notebook retains computed outputs and exports results, figures and datasets. The saved outputs are the computed project results. Set RUN_SIMULATION=True in the implementation cell to repeat all 48,000 simulated datasets. The default loads the saved Monte Carlo tables and repeats the other calculations.\n\n| Requirement | Where it is fulfilled |\n|---|---|\n| Unrestricted and restricted MLEs | Sections 5-6; implemented profile fits and real-data/Monte Carlo tables |\n| Joint Bayesian priors | Sections 7-8; dependent gamma-Dirichlet prior with a_0=2 and c_1+c_2=4 |\n| Unrestricted and ordered Bayesian estimates | Support-specific quadrature, posterior means, LINEX, credible intervals and checked sampling |\n| Complete simulation study | 48 scenarios, 1000 replications each, all four estimators, parameter/reliability errors, interval coverage and MCSEs |\n| Data illustration and checks | Published jute groups with a fit limitation, a carbon boundary check and separate primary gauge groups; calibrated fit checks and retained-data inference |''')
 theory=(root/'code/notes/derivations.md').read_text()
 sections=theory.split('\n## ')[2:]
 for section in sections[:8]:
     md('## '+section)
-md('## 9. Executable implementation\nThe following cell contains the complete implementation, including the censoring protocols, record likelihood, profile MLEs, dependent prior, posterior integration, bootstrap and numerical diagnostics.')
+md('## 9. Executable implementation\nThe following cell contains the main implementation, including the censoring protocols, record likelihood, profile MLEs, dependent prior, posterior integration, bootstrap and numerical diagnostics.')
 code('%matplotlib inline\n'+(root/'code/analysis.py').read_text()+'\nRUN_SIMULATION=False')
 md('## 10. Distribution and reliability figures')
 code('''
@@ -82,7 +82,7 @@ display(pd.DataFrame([dict(check='Observed information finite-difference error',
 md('## 12. Monte Carlo study\n'+sections[8].split('\n',1)[1])
 code('''
 if RUN_SIMULATION:
-    design,simulation_raw,simulation=run_simulation(300)
+    design,simulation_raw,simulation=run_simulation(1000)
 else:
     design=pd.read_csv(RESULTS/'simulation_design.csv')
     simulation_raw=pd.read_csv(RESULTS/'simulation_raw.csv')
@@ -103,7 +103,7 @@ refinement.to_csv(RESULTS/'quadrature_refinement.csv',index=False)
 assert refinement.R_mean_difference.max()<.002
 assert refinement.edge_mass.max()<1e-6
 assert simulation_raw.grid_edge_mass.max()<1e-5
-assert len(simulation_raw)==48*300*4
+assert len(simulation_raw)==48*1000*4
 assert np.isfinite(simulation_raw[PARAMETERS].to_numpy()).all()
 display(refinement.describe().loc[['mean','max']])
 ''')
@@ -149,26 +149,12 @@ for ax,mode in zip(axes,['typeI','adaptiveII']):
 fig.tight_layout();save_figure('05_observed_information')
 ''')
 code('''
-selected=design[(design.alpha==1.8)&(design.n_per_block==20)&(design.record_k==3)]
-boot_rows=[]
-for row in selected.itertuples():
-    rr=np.random.default_rng(SEED+500000+row.scenario)
-    covered=[];length=[];failed=0
-    for outer in range(100):
-        dd=simulate_data((row.alpha,row.lambda_X,row.lambda_Y),n=20,k=3,r=6,mode=row.censoring,rng=rr)
-        estimate=fit_mle(dd,True)
-        draws,nfailed=bootstrap_reliability(estimate,dd,rr,B=199,restricted=True)
-        ci=np.quantile(draws,[.025,.975])
-        covered.append(ci[0]-1e-10<=row.truth_R<=ci[1]+1e-10)
-        length.append(ci[1]-ci[0]);failed+=nfailed
-    cp=np.mean(covered)
-    boot_rows.append(dict(scenario=row.scenario,regime=row.regime,censoring=row.censoring,outer_replications=100,inner_resamples=199,coverage=cp,coverage_mcse=np.sqrt(cp*(1-cp)/100),average_length=np.mean(length),failed_inner_fits=failed))
-    print(f'Restricted bootstrap coverage: scenario {row.scenario} complete',flush=True)
-bootstrap_coverage=pd.DataFrame(boot_rows)
+bootstrap_comparison=pd.read_csv(RESULTS/'bootstrap_extended_summary.csv')
+bootstrap_coverage=bootstrap_comparison[bootstrap_comparison.method=='Ordered MLE Boot-p'].rename(columns={'protocol':'censoring','outer':'outer_replications','inner':'inner_resamples','average_width':'average_length'})
 bootstrap_coverage.to_csv(RESULTS/'restricted_bootstrap_coverage.csv',index=False)
-display(bootstrap_coverage)
+display(bootstrap_comparison)
 ''')
-md('## 13. Published-data validation\n'+sections[9].split('\n',1)[1])
+md('## 13. Published-data illustration\n'+sections[9].split('\n',1)[1])
 code('''
 measurements=pd.read_csv(RAW/'jute_fibre.csv')
 x=measurements.gauge_15mm.to_numpy();y=measurements.gauge_20mm.to_numpy()
@@ -208,8 +194,8 @@ gu=posterior_grid(real_data,na=240,np_=320);go=posterior_grid(real_data,True,na=
 parameter_aci,Raci=asymptotic_intervals(u,real_data)
 posterior_u=posterior_draws(gu,np.random.default_rng(SEED+50),40000)
 posterior_o=posterior_draws(go,np.random.default_rng(SEED+51),40000)
-boot_u,fail_u=bootstrap_reliability(u,real_data,np.random.default_rng(SEED+52),B=500)
-boot_o,fail_o=bootstrap_reliability(o,real_data,np.random.default_rng(SEED+53),B=500,restricted=True)
+boot_u,fail_u=bootstrap_reliability(u,real_data,np.random.default_rng(SEED+52),B=1999)
+boot_o,fail_o=bootstrap_reliability(o,real_data,np.random.default_rng(SEED+53),B=1999,restricted=True)
 intervals={'MLE':Raci,'Restricted MLE':np.quantile(boot_o,[.025,.975]),'Bayes':gu['ci'],'Restricted Bayes':go['ci']}
 fits={'MLE':np.r_[u,reliability(*u[1:])],'Restricted MLE':np.r_[o,reliability(*o[1:])],'Bayes':gu['means'],'Restricted Bayes':go['means']}
 real_rows=[]
@@ -244,7 +230,7 @@ for j,row in enumerate(real_estimates.itertuples()):
 axes[1].set(yticks=np.arange(4),yticklabels=real_estimates.method,xlabel='Reliability with 95% interval',title='Point and interval estimates');axes[1].axvline(.5,linestyle='--',color='black')
 fig.tight_layout();save_figure('08_real_reliability_intervals')
 ''')
-md('## 13.1. Additional validation on published carbon-fibre strengths\nThe calibrated jute checks reveal limited Weibull adequacy in one group. A second common-unit dataset provides an independent compatibility check. The 100 carbon-fibre strengths in GPa are transcribed from the supplied Journal of Mathematics article, section 5.1.1, pages 12 and 14, attributed there to Nichols and Padgett. A seeded random split produces disjoint strength and comparison groups of 50 each. Both remain laboratory breaking-strength populations. The analysis unit is 3 GPa, so measurements are divided by three before inference and the same fixed primary prior is used. No flood-discharge observations are mixed with these data. The first five upper 4-records contain no tied retained values; no jitter is applied to rounded measurements.')
+md('## 13.1. Carbon random-split boundary check\nThe calibrated jute checks reveal limited Weibull adequacy in one group. A common-unit random split provides a boundary check, not validation with two distinct source populations. The 100 carbon-fibre strengths in GPa are transcribed from the supplied Journal of Mathematics article, section 5.1.1, pages 12 and 14, attributed there to Nichols and Padgett. A seeded random split produces disjoint strength and comparison groups of 50 each. Both remain laboratory breaking-strength populations. The analysis unit is 3 GPa, so measurements are divided by three before inference and the same fixed primary prior is used. No flood-discharge observations are mixed with these data. The first five upper 4-records contain no tied retained values; no jitter is applied to rounded measurements.')
 code("""
 carbon=pd.read_csv(RAW/'carbon_fibre.csv')
 assert len(carbon)==100
@@ -271,7 +257,7 @@ carbon_data=make_data(cblocks,crecords,4)
 cu=fit_mle(carbon_data);co=fit_mle(carbon_data,True)
 cgu=posterior_grid(carbon_data,na=240,np_=320);cgo=posterior_grid(carbon_data,True,na=240,np_=320)
 _,caci=asymptotic_intervals(cu,carbon_data)
-cboot,cfailed=bootstrap_reliability(co,carbon_data,np.random.default_rng(SEED+72),B=500,restricted=True)
+cboot,cfailed=bootstrap_reliability(co,carbon_data,np.random.default_rng(SEED+72),B=1999,restricted=True)
 carbon_rows=[]
 for label,estimate,interval in [('MLE',np.r_[cu,reliability(*cu[1:])],caci),('Restricted MLE',np.r_[co,reliability(*co[1:])],np.quantile(cboot,[.025,.975])),('Bayes',cgu['means'],cgu['ci']),('Restricted Bayes',cgo['means'],cgo['ci'])]:
     carbon_rows.append(dict(method=label,alpha=estimate[0],lambda_X=estimate[1],lambda_Y=estimate[2],R_3_5=estimate[3],lower=interval[0],upper=interval[1]))
@@ -382,21 +368,36 @@ assert real_refinement.maximum_mean_difference.max()<1e-4
 assert real_refinement.maximum_interval_difference.max()<.002
 assert real_refinement.maximum_hpd_difference.max()<.002
 assert np.max(np.abs(real_refinement.hpd_mass-.95))<1e-8
-findings=f'''The complete 15 mm and 20 mm samples give calibrated Weibull K-S p-values {gof.bootstrap_p.iloc[0]:.3f} and {gof.bootstrap_p.iloc[1]:.3f}. The common-shape likelihood-ratio statistic is {shape_test['LR']:.3f}, with bootstrap p-value {shape_test['bootstrap_p']:.3f}. The 15 mm calibrated test rejects Weibull adequacy at the 5% level, so the jute estimates are reported with a model-fit limitation. The additional carbon-fibre halves have calibrated K-S p-values {carbon_gof.bootstrap_p.iloc[0]:.3f} and {carbon_gof.bootstrap_p.iloc[1]:.3f}; their common-shape bootstrap p-value is {carbon_shape['bootstrap_p']:.3f}. These are compatible with the fitted Weibull model at this sample size, without proving it true. Their unrestricted and restricted posterior reliability means are {cgu['means'][-1]:.4f} and {cgo['means'][-1]:.4f}, respectively.
+findings=f'''The complete 15 mm and 20 mm samples give calibrated Weibull K-S p-values {gof.bootstrap_p.iloc[0]:.3f} and {gof.bootstrap_p.iloc[1]:.3f}. The common-shape likelihood-ratio statistic is {shape_test['LR']:.3f}, with bootstrap p-value {shape_test['bootstrap_p']:.3f}. The 15 mm calibrated test rejects Weibull adequacy at the 5% level, so the jute estimates are reported with a model-fit limitation. The additional carbon-fibre halves have calibrated K-S p-values {carbon_gof.bootstrap_p.iloc[0]:.3f} and {carbon_gof.bootstrap_p.iloc[1]:.3f}; their common-shape bootstrap p-value is {carbon_shape['bootstrap_p']:.3f}. These are compatible with the fitted Weibull model at this sample size, without proving it true. The random split is a boundary check rather than two distinct experimental populations. Section 18 adds the primary 20 mm and 80 mm groups, order diagnostics and complete-data nonparametric comparisons. Their unrestricted and restricted posterior reliability means are {cgu['means'][-1]:.4f} and {cgo['means'][-1]:.4f}, respectively.
 
 The retrospective Type-I experiment retains {real_data['d']} strength failures and {real_data['r']} upper 2-records. The unrestricted MLE reliability is {fits['MLE'][-1]:.4f}; its log-ratio 95% confidence interval is [{Raci[0]:.4f}, {Raci[1]:.4f}]. The unrestricted posterior mean is {gu['means'][-1]:.4f}, with a 95% equal-tail credible interval [{gu['ci'][0]:.4f}, {gu['ci'][1]:.4f}]. The restricted MLE is {fits['Restricted MLE'][-1]:.4f}; the restricted posterior mean is {go['means'][-1]:.4f}, with credible interval [{go['ci'][0]:.4f}, {go['ci'][1]:.4f}]. The restricted posterior excludes reliability below one half by construction, so this shift reflects the assumed rate order as well as the measurements.
 
-Across 14,400 simulated datasets, all four estimators were compared against fixed truths and all raw outputs were retained. Scenario-level tables include Monte Carlo uncertainty. Both equal-tail and numerical HPD interval coverage and average width are recorded for the Bayesian estimators. Under a false order restriction, the true reliability is below one half while restricted estimates cannot be; the resulting bias and low coverage are a structural consequence rather than an implementation error. At an equality boundary, a continuous truncated posterior has all interval mass above one half, so an equal-tail restricted credible interval need not include the boundary truth. This is why boundary coverage is reported explicitly.
+Across 48,000 simulated datasets, all four estimators were compared against fixed truths and all raw outputs were retained. Scenario-level tables include Monte Carlo uncertainty. Both equal-tail and numerical HPD interval coverage and average width are recorded for the Bayesian estimators. Under a false order restriction, the true reliability is below one half while restricted estimates cannot be; the resulting bias and low coverage are a structural consequence rather than an implementation error. At an equality boundary, a continuous ordered equal-tail interval starts strictly above one half, so it cannot include the boundary truth. A numerical HPD interval can include it. This is why boundary coverage is reported explicitly.
 
 The largest sampler split R-hat is {diagnostics.split_Rhat.max():.4f} and the minimum effective sample size is {diagnostics.ESS.min():.0f}. Sampler means are checked against quadrature with their Monte Carlo standard errors. The numerical HPD intervals have posterior probability 0.95 under the interpolated reliability density, with endpoints checked on a finer grid. The maximum real-data quadrature refinement difference in a mean is {real_refinement.maximum_mean_difference.max():.2g}. The model remains conditional on common shape, homogeneous block populations, noninformative withdrawals, shared stress and the laboratory interpretation of the comparison group. Acquisition-order sensitivity and prior sensitivity should be retained when presenting the estimates.
 
-All five assigned requirements are implemented. The SAGE reference was available at abstract level only; full-text review of that unsupplied article remains access-limited. All five supplied PDFs were examined and their uses or exclusions are recorded in the literature review.'''
+All five assigned requirements are implemented. This project used the SAGE publisher abstract and citation details; the full text was not accessed in this session. All five supplied PDFs were examined and their uses or exclusions are recorded in the literature review.'''
 (NOTES/'results_discussion.md').write_text('# Results and discussion\n\nVaidik Maheshwari (250150045) and Anant Gupta (250150004)\n\n'+findings)
 display(Markdown(findings))
-audit=pd.DataFrame([dict(requirement='Unrestricted and restricted MLEs',evidence='Profile derivation, independent optimization check, real-data and 48-scenario tables',status='Implemented'),dict(requirement='Joint priors',evidence='Dependent gamma-Dirichlet family, Jacobian, covariance, truncated ordered prior',status='Implemented'),dict(requirement='Unrestricted and restricted Bayes estimates',evidence='Quadrature, squared-error and LINEX, credible intervals, independent sampler',status='Implemented'),dict(requirement='Complete simulation',evidence='48 x 300 datasets; point metrics for four targets; ACI, equal-tail and HPD coverage/width; MCSE; bootstrap subset',status='Implemented'),dict(requirement='Suitable-data validation',evidence='Published jute data; calibrated K-S/LR; fit, sampling, posterior and predictive figures',status='Implemented')])
+audit=pd.DataFrame([dict(requirement='Unrestricted and restricted MLEs',evidence='Profile derivation, independent optimization check, real-data and 48-scenario tables',status='Implemented'),dict(requirement='Joint priors',evidence='Dependent gamma-Dirichlet family, Jacobian, covariance, truncated ordered prior',status='Implemented'),dict(requirement='Unrestricted and restricted Bayes estimates',evidence='Quadrature, squared-error and LINEX, credible intervals, independent sampler',status='Implemented'),dict(requirement='Complete simulation',evidence='48 x 1000 datasets; point metrics for four targets; ACI, equal-tail and HPD coverage/width; MCSE; bootstrap subset',status='Implemented'),dict(requirement='Suitable-data validation',evidence='Jute with a fit limitation, carbon boundary check, primary gauge populations; calibrated fits, order evidence and nonparametric comparison',status='Implemented')])
 audit.to_csv(RESULTS/'requirements_audit.csv',index=False);display(audit)
 """)
 md('## 17. Literature review and bibliography\n'+(root/'code/notes/literature_review.md').read_text().split('\n',3)[-1])
+md('## 18. Additional interval, design and data checks\nThe larger bootstrap study, second-system design checks, broader-prior comparison and primary 20 mm versus 80 mm carbon measurements are computed in review_extensions.py and review_applications.py. These cells show the saved outputs. The baseline uses 1000 replications per setting; extension studies use the replication counts printed in their tables. The random carbon split remains a boundary check rather than a distinct-population validation.')
+code('''
+for file in ['bootstrap_extended_summary.csv','design_extensions_summary.csv','prior_extensions_summary.csv','primary_goodness_of_fit.csv','primary_estimates.csv','order_evidence.csv','nonparametric_reliability.csv','application_bootstrap_intervals.csv','mcmc_scenario_checks.csv']:
+    display(Markdown('### '+file.replace('_',' ').replace('.csv','')))
+    display(pd.read_csv(RESULTS/file))
+for s,K in [(2,4),(1,3),(4,6)]:
+    for ordered in [False,True]:
+        gg=posterior_grid(real_data,ordered,s=s,K=K,na=110,np_=160)
+        assert abs(gg['hpd_mass']-.95)<1e-8
+        if ordered:
+            assert gg['hpd'][0]>=float(reliability(1.,1.,s,K))
+from IPython.display import Image as DisplayImage
+for name in ['14_bootstrap_comparison','15_design_extensions','16_primary_carbon_fits','17_primary_reliability','18_nonparametric_comparison']:
+    display(DisplayImage(filename=str(GRAPHS/(name+'.png'))))
+''')
 nb=nbformat.v4.new_notebook(cells=cells,metadata={'kernelspec':{'display_name':'Python 3','language':'python','name':'python3'},'language_info':{'name':'python','version':'3.14'},'title':'DA2141 - Vaidik Maheshwari and Anant Gupta'})
 nbformat.write(nb,root/'code/Vaidik_Maheshwari_Anant_Gupta_DA2141.ipynb')
 print(len(cells),'cells written')

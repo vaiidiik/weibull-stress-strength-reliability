@@ -3,20 +3,20 @@
     "Vaidik Maheshwari (250150045)",
     "Anant Gupta (250150004)"
   ],
-  "executed_code_cells": 12,
+  "executed_code_cells": 13,
   "notebook_errors": 0,
-  "embedded_graphs": 13,
-  "saved_graphs": 13,
+  "embedded_graphs": 18,
+  "saved_graphs": 18,
   "python_comment_tokens": 0,
   "simulation_scenarios": 48,
-  "replications_per_scenario": 300,
-  "simulated_datasets": 14400,
+  "replications_per_scenario": 1000,
+  "simulated_datasets": 48000,
   "estimators_per_dataset": 4,
   "supplied_pdf_count": 5,
   "supplied_pdf_pages": 105,
-  "report_pdf_pages": 47,
-  "source_access_limitation": "Assigned SAGE full text unavailable; publisher abstract reviewed",
-  "checks": "Likelihood optimization, information derivatives, reliability integration/direct simulation, specimen conservation, posterior sampling, HPD probability mass and grid refinement passed; all 12 notebook code cells executed without error",
+  "report_pdf_pages": 40,
+  "source_access_limitation": "SAGE publisher abstract and citation details used; full text not accessed in this session; dated access record saved",
+  "checks": "All 13 notebook code cells executed; likelihood, information, general-system integration, censoring conservation, posterior sampling, HPD mass and quadrature refinement checks passed",
   "readability_audit": {
     "all_pages_visually_reviewed": true,
     "text_outside_margins": 0,
@@ -24,18 +24,18 @@
     "replacement_characters": 0,
     "body_font_size_pt": 11,
     "layout": "Supplied A4 article margins and section structure",
-    "images": 49
+    "images": 23
   },
   "hpd_validation": {
-    "simulated_bayesian_intervals": 28800,
-    "maximum_probability_mass_error": 5.84e-12,
-    "maximum_application_refinement_difference": 3.73e-08,
+    "simulated_bayesian_intervals": 96000,
+    "maximum_probability_mass_error": 6.5780714209040525e-12,
+    "maximum_application_refinement_difference": 3.834897648324898e-07,
     "normal_distribution_check": "passed",
     "boundary_endpoint_check": "passed"
   },
   "latex_comment_lines": 0,
   "report_pseudocode_algorithms": 3,
-  "report_graph_panels": 49,
+  "report_graph_panels": 23,
   "repository_layout": [
     "Project_Report.pdf",
     "README.md",
@@ -43,5 +43,26 @@
     "graphs",
     "data",
     "code"
-  ]
+  ],
+  "python_docstrings": 0,
+  "review_additions": {
+    "review_points": 22,
+    "bootstrap_settings": 12,
+    "bootstrap_outer": 500,
+    "bootstrap_inner": 399,
+    "application_bootstrap_resamples": 3999,
+    "design_extension_settings": 14,
+    "design_extension_replications": 500,
+    "prior_regimes": 3,
+    "prior_replications": 500,
+    "primary_gauge_counts": {
+      "20_mm": 153,
+      "80_mm": 153
+    },
+    "maximum_general_reliability_error": 5.773159728050814e-15,
+    "maximum_mcmc_Rhat": 1.001280690973497,
+    "minimum_mcmc_ESS": 2820.6905264856123,
+    "maximum_mcmc_mean_difference_in_MCSE": 2.158772250063346
+  },
+  "saved_graph_panels": 61
 }

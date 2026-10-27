@@ -6,13 +6,7 @@ Figures~\ref{fig:ordered-errors}--\ref{fig:violated-errors} show how the reliabi
 \pairplot{03_simulation_bias_mse_panel_03.png}{03_simulation_bias_mse_panel_06.png}{Reliability MSE and signed bias in the violated rate regime. Both the strength size and stress record count increase between the two horizontal-axis values.}{fig:violated-errors}
 In the ordered cases the order restriction can reduce uncertainty by excluding rate pairs that are assumed impossible. At the boundary, it tends to shift reliability upward. In the violated cases, a restricted reliability estimate cannot approach the true value below one half, even if more observations are collected. The bias in that case is a consequence of the assumption rather than a numerical fitting failure.
 
-The coverage plots display individual scenario results instead of only regime averages. Error bars are 1.96 times the estimated Monte Carlo standard error, and the horizontal reference is 0.95. The bars describe uncertainty in a simulated coverage estimate; they are not confidence intervals for the reliability of an individual specimen.
-
-\pairplot{04_simulation_coverage_panel_01.png}{04_simulation_coverage_panel_02.png}{Scenario-level coverage of the unrestricted ACI and the two Bayesian equal-tail intervals in the ordered and boundary regimes.}{fig:coverage-ordered-boundary}
-\singleplot{04_simulation_coverage_panel_03.png}{Scenario-level coverage in the violated regime. Ordered equal-tail intervals cannot cover a truth below their reliability support.}{fig:coverage-violated}
 \pairplot{13_hpd_comparison_panel_01.png}{13_hpd_comparison_panel_02.png}{Coverage and average width for unrestricted and ordered Bayesian equal-tail and numerical HPD intervals. Each value averages 16 scenario summaries.}{fig:hpd-comparison}
 The HPD comparison makes the boundary distinction visible. An ordered equal-tail interval starts strictly above one half, whereas a shortest interval can use one half as an endpoint. Shorter numerical HPD intervals therefore need to be assessed by coverage as well as width. The reported averages are not a claim that every scenario attains nominal coverage.
-
-\pairplot{05_observed_information_panel_01.png}{05_observed_information_panel_02.png}{Observed strength failure totals under Type-I and adaptive Type-II progressive hybrid sampling, pooled across the corresponding simulation settings.}{fig:observed-counts}
 
 \FloatBarrier

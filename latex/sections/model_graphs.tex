@@ -1,10 +1,4 @@
-\subsubsection{Distribution and reliability graphs}
-The four distribution plots use rate one and several shapes. With shape below one, the hazard decreases; with shape one it is constant; with shape above one it increases. These are properties of the chosen distribution, not fitted statements about the published specimens. A density may be greater than one at a point; its area, rather than its height, is a probability.
-
-\pairplot{01_weibull_functions_panel_01.png}{01_weibull_functions_panel_02.png}{Weibull density and cumulative distribution for shapes 0.6, 1, 1.8 and 3 at rate one.}{fig:weibull-density}
-\pairplot{01_weibull_functions_panel_03.png}{01_weibull_functions_panel_04.png}{Weibull survival and hazard for the same parameter choices. Survival decreases with the threshold, while the shape controls the hazard trend.}{fig:weibull-survival}
-A larger stress rate makes large stress values less likely in this rate parameterization, so reliability increases with $b/a$. Requiring more components to survive reduces reliability. The second reliability panel compares the common-stress model with a model that gives every component an independent stress. The two curves differ because shared stress creates dependence between component survival indicators.
-
-\pairplot{02_reliability_panel_01.png}{02_reliability_panel_02.png}{Reliability for several system requirements, and the effect of using one shared stress instead of separate independent stresses.}{fig:reliability-comparison}
-
+\subsubsection{Reliability graphs}
+A larger stress rate makes large stresses less likely, so reliability increases with $b/a$. Requiring more surviving components reduces reliability. Shared stress creates dependence between the survival indicators.
+\pairplot{02_reliability_panel_01.png}{02_reliability_panel_02.png}{System reliability for different survival requirements, and comparison of shared and independent stresses.}{fig:reliability-comparison}
 \FloatBarrier

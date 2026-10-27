@@ -1,19 +1,7 @@
 \appendix
-\section{Complete simulation settings}\label{sec:appendix-design}
-Table~\ref{tab:design} lists every scenario. Ordered, boundary and violated rate pairs are $(0.8,1.6)$, $(1,1)$ and $(1.6,0.8)$, respectively. In every row the target is $\lfloor0.7n\rfloor$ per block, the withdrawal plan is balanced and the threshold is the true strength 65th percentile. The record count increases with block size. All point and interval summaries for individual scenarios are stored in \path{data/results/simulation_summary.csv}; the raw fitted replications are in \path{data/results/simulation_raw.csv}.
+\section{Sources and reproducibility}\label{sec:appendix-sources}
+Sultana et al.\ \cite{Sultana2026} provide the block Weibull framework, order restriction and dependent prior, and reproduce the jute measurements. Newer \cite{Newer2025} provides the combined censoring/record framework for another distribution. Newer and Alanazi \cite{NewerAlanazi2026} provide related reliability and bootstrap ideas and the reproduced carbon table. We derive the assigned Weibull model separately. The primary gauge workbooks are from the authors' Zenodo deposit \cite{KumarData2020}, linked by Kumar et al.\ \cite{Kumar2024}.
 
-\input{tables/scenario_design.tex}
+The other supplied hybrid-inference paper informs interval reporting. The supplied attention-based control-chart paper is outside this model, so its trading data and machine-learning methods are not used. For the assigned SAGE reference, this work used the publisher abstract and citation details; full text was not accessed in this session. Source-by-source details are in \path{code/notes/literature_review.md}.
 
-\section{Complete published observations}\label{sec:appendix-data}
-These tables reproduce the measurements used in the two applications so that the data selection can be checked without reading Python. Their source and scaling are described in Section~\ref{sec:data}. No observed measurement in these tables is a newly simulated value.
-\input{tables/jute_complete.tex}
-\input{tables/carbon_complete.tex}
-
-\section{Source use and reproducibility}\label{sec:appendix-sources}
-The Weibull block paper \cite{Sultana2026} supplies the relevant common-shape parameterization, order-restricted inference and gamma-Dirichlet prior construction. Its reproduced jute table is our transcription source. The Scientific Reports paper \cite{Newer2025} supplies the combined censoring/record framework for a different distribution. We derive the Weibull reliability and likelihood separately. The Journal of Mathematics paper \cite{NewerAlanazi2026} gives related conditional reliability and bootstrap ideas and supplies the reproduced carbon measurements.
-
-Two other supplied articles were reviewed. The generalized inverted exponential paper by Hasaballah and coauthors concerns unified hybrid inference and provides background on interval reporting; its distribution and COVID-19 data are not used here. The attention-based ratio control-chart article by Yeganeh and coauthors is outside the assigned reliability problem, so none of its trading data or machine-learning procedures is imported. The assigned SAGE reference was available only at abstract level. Its full text was not supplied, and no derivation from its unavailable full text is claimed. The detailed source-use notes remain in \path{code/notes/literature_review.md}.
-
-The repository separates raw measurements, retained observations and computed results. The notebook in \path{code/} contains saved tables and graphs. \path{code/analysis.py} contains the statistical functions; the other scripts execute the notebook and prepare the report tables and graphs. The complete simulation can be repeated by enabling its stated run switch. The master seed and scenario-specific streams are fixed. The LaTeX sources and bibliography are in \path{latex/}, and every graph is in \path{graphs/}.
-
-The main results do not depend on reading the locally archived original article PDFs at runtime. Those documents remain available locally for source checking, but are not part of the public repository. This separation keeps the submitted project focused on the report, code, data and computed evidence.
+Full measurement listings, retained observations and the 48-row simulation design are stored in \path{data/}, rather than repeated in the report. The executed notebook and statistical scripts are in \path{code/}; all additional plots remain in \path{graphs/}. The primary workbook filenames, row rule, checksums and units are recorded in \path{data/raw/primary_carbon_provenance.json}. Seeds and priors are fixed in the code. The README gives execution and compilation commands.

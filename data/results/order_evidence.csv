@@ -1,0 +1,4 @@
+dataset,LR,boundary_bootstrap_p,posterior_order_probability,bootstrap_B
+Jute,3.552713678800501e-15,1.0,0.8778129204263766,999
+Carbon random-split boundary check,1.7646854574088096,0.101,0.1271794527191409,999
+Primary carbon 20 mm versus 80 mm,0.0,1.0,0.9963850557137927,999

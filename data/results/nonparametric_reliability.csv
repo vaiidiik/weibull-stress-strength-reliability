@@ -1,0 +1,4 @@
+dataset,strength_n,stress_n,estimate,lower,upper,bootstrap_B,information,complete_weibull_estimate
+Jute,30,30,0.5420978765806351,0.3550837508596129,0.724308432627398,2000,Complete observations; hypergeometric U-statistic,0.5230692265121559
+Carbon random-split boundary check,50,50,0.3887794181502388,0.2456339021408748,0.5532861319828578,2000,Complete observations; hypergeometric U-statistic,0.4393339106059134
+Primary carbon 20 mm versus 80 mm,153,153,0.8090664657144185,0.7365438883679489,0.8707148436845269,2000,Complete observations; hypergeometric U-statistic,0.8109573865138198

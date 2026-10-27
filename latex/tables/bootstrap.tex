@@ -1,17 +1,23 @@
 \begin{table}[htbp]
 \centering
-\caption{Ordered MLE bootstrap intervals in six selected scenarios: 100 outer datasets and 199 resamples per dataset. MCSE refers to coverage.}\label{tab:bootstrap}
+\caption{Ordered MLE percentile-bootstrap intervals in 12 settings: 500 outer datasets and 399 resamples per dataset. MCSE refers to coverage.}\label{tab:bootstrap}
 \small
-\begin{tabular}{llrrr}
+\begin{tabular}{lllrrr}
 \toprule
-Rate regime & Protocol & CP & MCSE & AW \\
+Regime & $n$ & Protocol & CP & MCSE & AW \\
 \midrule
-Ordered & Type I & 0.910 & 0.029 & 0.371 \\
-Ordered & Adaptive II & 0.860 & 0.035 & 0.364 \\
-Boundary & Type I & 0.940 & 0.024 & 0.340 \\
-Boundary & Adaptive II & 0.910 & 0.029 & 0.343 \\
-Violated & Type I & 0.000 & 0.000 & 0.321 \\
-Violated & Adaptive II & 0.000 & 0.000 & 0.306 \\
+Ordered & 20 & Type I & 0.932 & 0.011 & 0.381 \\
+Ordered & 20 & Adaptive II & 0.940 & 0.011 & 0.373 \\
+Ordered & 40 & Type I & 0.974 & 0.007 & 0.340 \\
+Ordered & 40 & Adaptive II & 0.948 & 0.010 & 0.316 \\
+Boundary & 20 & Type I & 0.958 & 0.009 & 0.354 \\
+Boundary & 20 & Adaptive II & 0.950 & 0.010 & 0.335 \\
+Boundary & 40 & Type I & 0.978 & 0.007 & 0.279 \\
+Boundary & 40 & Adaptive II & 0.962 & 0.009 & 0.249 \\
+Violated & 20 & Type I & 0.000 & 0.000 & 0.327 \\
+Violated & 20 & Adaptive II & 0.000 & 0.000 & 0.303 \\
+Violated & 40 & Type I & 0.000 & 0.000 & 0.252 \\
+Violated & 40 & Adaptive II & 0.000 & 0.000 & 0.216 \\
 \bottomrule
 \end{tabular}
 \end{table}

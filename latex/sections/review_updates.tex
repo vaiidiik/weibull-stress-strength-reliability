@@ -1,0 +1,154 @@
+\subsection{Additional bootstrap comparisons}\label{sec:extra-bootstrap}
+The main study gives an asymptotic interval for the unrestricted MLE. With few stress records, its normal approximation can be inaccurate. We therefore compare it with a percentile parametric bootstrap interval and a studentized interval. These additions address interval accuracy; they do not change the likelihood or turn the fitted data into a new independent experiment.
+
+\input{tables/review_findings.tex}
+
+Let $\widehat\psi=\log(\widehat b/\widehat a)$ and let $\widehat\sigma_\psi$ be its observed-information standard error. For each bootstrap dataset, refit the unrestricted model and calculate
+\begin{equation}
+T^*=\frac{\widehat\psi^*-\widehat\psi}{\widehat\sigma^*_\psi}.\label{eq:bootstrap-pivot}
+\end{equation}
+If $t^*_{.025}$ and $t^*_{.975}$ are the empirical pivot quantiles, invert them to obtain
+\begin{equation}
+\left[\widehat\psi-t^*_{.975}\widehat\sigma_\psi,\quad
+\widehat\psi-t^*_{.025}\widehat\sigma_\psi\right].\label{eq:bootstrap-t}
+\end{equation}
+Exponentiating and applying $R(1,\rho)$ gives the reliability interval. We call this Boot-t on the log-rate ratio. Studentizing the rate ratio on its logarithmic scale keeps positive ratios and valid reliability endpoints. It is different from studentizing reliability directly. Boot-p is the interval between the empirical 0.025 and 0.975 quantiles of the bootstrap reliability estimates.
+
+Every replicate preserves the observation design: starting block sizes, targets, time thresholds, planned withdrawals, protocol, record order and stopping count. The bootstrap is generated under the fitted parameters; the time thresholds stay at their design values rather than being recalculated from each new fit. The ordered percentile bootstrap is generated and refitted under the ordered model. We do not apply the ordinary studentized construction to a pooled ordered MLE, where the regular normal approximation fails.
+
+\begin{algorithm}[htbp]
+\caption{Parametric bootstrap intervals for one retained dataset}\label{alg:bootstrap}
+\begin{algorithmic}[1]
+\REQUIRE Retained observations, fixed observation design, bootstrap count $B$
+\STATE Fit the unrestricted MLE and calculate $\widehat\psi,\widehat\sigma_\psi$
+\FOR{$h=1,\ldots,B$}
+\STATE Generate independent Weibull strength blocks under the fitted model
+\STATE Apply each block's withdrawals and hybrid stopping rule
+\STATE Generate stress upper k-records to the prescribed record count
+\STATE Refit and save $\widehat R_h^*$ and the pivot in \eqref{eq:bootstrap-pivot}
+\ENDFOR
+\STATE Use reliability quantiles for Boot-p and inverted pivot quantiles for Boot-t
+\STATE Repeat generation and fitting under the ordered model for ordered Boot-p
+\ENSURE Three bootstrap reliability intervals, with the original ACI as a comparator
+\end{algorithmic}
+\end{algorithm}
+
+The enlarged coverage experiment has twelve settings and 500 independent outer datasets in each setting. Each outer fit uses 399 bootstrap resamples. The settings cross three rate regimes, two block sizes and two hybrid protocols. Shape is 1.8, record order is one, and the record counts are six or twelve as in the main size contrast. The setting-level coverage and width results are saved with the data. For coverage near 0.95, 500 replications give MCSE about 0.010; differences of one percentage point are therefore not decisive by themselves.
+
+The full setting-by-setting bootstrap table is saved in \path{data/results/bootstrap_extended_summary.csv}; Table~\ref{tab:bootstrap} reports ordered coverage and Figure~\ref{fig:bootstrap-expanded} compares all four interval methods.
+
+Across the four ordered-regime settings, average coverage is about 0.933 for ACI, 0.930 for unrestricted Boot-p, 0.944 for Boot-t and 0.949 for ordered Boot-p. At the equality boundary the corresponding averages are about 0.937, 0.932, 0.947 and 0.962. The studentized interval improves average unrestricted coverage in these comparisons, usually with a greater width. This is evidence from the stated settings, not a guarantee of improvement for every sample size or parameter value. Under the violated order, ordered Boot-p has zero coverage because the true reliability lies outside its support. Increasing the bootstrap count cannot fix a false support assumption.
+
+\pairplot{14_bootstrap_comparison_panel_01.png}{14_bootstrap_comparison_panel_02.png}{Coverage and average width in the expanded bootstrap study, averaged within each rate regime. The dotted line marks nominal coverage 0.95.}{fig:bootstrap-expanded}
+\FloatBarrier
+
+\subsection{Another system and different observation designs}\label{sec:design-extra}
+A formula may allow many $s$ and $K$ values while a numerical study examines only one. We add a 2-out-of-4 comparison with shape 1.8, strength rate 0.8 and stress rate 1.6. Its true shared-stress reliability is 0.8 and its ordered lower bound is 0.6. Four estimators are fitted to the same generated data in each replication. There are 500 replications in each of fourteen designs.
+
+Eight designs cross strength block sizes 20 and 40 with stress record counts six and twelve under both protocols. This separates the two size changes that were combined in the main study. The uniform blocks use a 70 percent failure target, balanced withdrawals and the true strength 65th percentile as the fixed threshold. Record order is one. The total starting strength sample is three times the displayed block size.
+
+Two more designs have unequal facilities. Their $(n_i,m_i)$ values are $(15,9)$, $(20,14)$ and $(25,19)$. The thresholds are the true strength 45th, 65th and 80th percentiles, and the withdrawal patterns are early, balanced and late, respectively. There are 60 starting specimens and 42 target failures in total. Early withdrawals remove the planned surplus at the first failure; late withdrawals remove it at the last failure. Actual removals still follow the chosen hybrid rule. These designs vary observation settings across facilities, while retaining one common strength population. Giving each facility a different population rate would require a different statistical model.
+
+The last four designs use uniform blocks of size 20, six records, and either early or late withdrawals under each protocol. Table~\ref{tab:design-extensions} gives reliability MSE and Bayesian HPD coverage for all fourteen designs. I denotes Type I and A denotes adaptive Type II.
+
+\input{tables/review_design.tex}
+
+In the Type-I crossed comparison, unrestricted MLE MSE falls from about 0.0153 to 0.0138 when record count increases from six to twelve at block size 20. At block size 40 the corresponding values are about 0.0123 and 0.0088. Increasing strength size at a fixed record count also reduces MSE here. Thus the main study's size improvement cannot be assigned entirely to either source of information.
+
+The mixed-block and withdrawal results also show that an observation design matters. For example, adaptive late withdrawals give a different unrestricted Bayesian MSE from adaptive early withdrawals. The ordered Bayesian estimator benefits from the correct order in this experiment. Its low MSE is conditional on that order and on the stated proper prior. HPD coverage varies across settings, with Monte Carlo uncertainty from 500 replications.
+
+\pairplot{15_design_extensions_panel_01.png}{15_design_extensions_panel_02.png}{The added 2-out-of-4 study. The first panel crosses strength block size and stress record count under Type I; the second compares block and withdrawal designs. Each plotted setting uses 500 datasets.}{fig:design-extra}
+\FloatBarrier
+
+\subsection{How much the prior changes the simulation}\label{sec:prior-extra}
+The primary prior puts real information into a small retained sample. It should not be described as noninformative, and an estimator's lower MSE under one prior is not a prior-free result. To examine this, we compare the primary prior with a broader proper prior using the same 500 datasets per regime. Shape is 1.8, blocks have size 20, there are six upper 1-records, and the strength protocol is Type I.
+
+The broader hyperparameters in \eqref{eq:prior-components} are
+\begin{equation}
+(a_0,b_0,c_1,c_2,a_1,b_1)=(0.5,0.125,1,1,0.5,0.25).\label{eq:broader-prior}
+\end{equation}
+Both priors have $E(t)=4$, $E(\alpha)=2$ and $E(p)=1/2$. Under the primary prior, $\operatorname{Var}(t)=8$, $\operatorname{Var}(\alpha)=2$ and $\operatorname{Var}(p)=0.05$. The broader prior gives variances 32, 8 and $1/12$, respectively. It is still a proper prior and remains dependent in the two rates. The comparison changes concentration while keeping these central values fixed; it does not establish invariance to all reasonable priors.
+
+\input{tables/review_prior.tex}
+
+In the ordered regime, unrestricted Bayesian MSE is about 0.0138 with the primary prior and 0.0167 with the broader prior. Ordered Bayesian MSE changes from about 0.0055 to 0.0064. Other rows show smaller or different changes. Under a false order, both priors still give large ordered bias because neither permits reliability below the ordered bound. Changing prior concentration cannot repair that support error.
+
+The point errors, coverage and widths should be read together. A more concentrated prior can reduce MSE near values it favours, while changing bias or interval coverage elsewhere. These results support reporting the actual hyperparameters and sensitivity results alongside the main comparison.
+\FloatBarrier
+
+\subsection{Separate primary carbon gauge populations}\label{sec:primary-data}
+The random carbon split is useful for checking behaviour near a population boundary, but it does not provide two distinct source populations. We therefore add the 20 mm and 80 mm gauge groups from the authors' public carbon-fibre workbooks \cite{KumarData2020}. The related data article is Kumar et al.\ \cite{Kumar2024}. Gauge length distinguishes these laboratory groups before any fitted rate is calculated. We chose the endpoint gauges before fitting, rather than searching gauge pairs for an attractive result.
+
+The variable used is maximum failure stress in MPa. We convert it to GPa by dividing by 1000, then use a fixed 5 GPa analysis unit for both groups. The saved CSV retains every positive measurement with an identified specimen row, giving 153 rows per gauge. The source workbook checksums match the authors' published checksums. The article describes approximately 150 fibres per gauge and reports exclusions for experimental errors. Our transparent workbook-row rule is not a reconstruction of its plotting exclusions or an exact replication of its published fitted parameters. Low measured strengths remain in our data.
+
+The source experiment also has a selection limitation: some fibres can break during preparation before tensile testing. Those unmeasured values are absent from the published measurements. Our retrospective censoring is imposed after observing the available workbook specimens; it cannot recover missing preparation failures. The analysis describes the saved laboratory samples, conditional on their collection process.
+
+\input{tables/review_primary_gof.tex}
+
+The separate Weibull K-S bootstrap p-values are about 0.455 and 0.230. The common-shape likelihood-ratio statistic is 0.00264, with bootstrap p-value about 0.967 from 1000 refitted samples. We therefore do not reject these working assumptions at 5 percent. This is compatibility with the observed samples, rather than proof of a Weibull law. The complete-data common shape is about 6.14, and the larger stress rate for the 80 mm group corresponds to smaller breaking strengths on the common unit scale.
+
+\pairplot{16_primary_carbon_fits_panel_03.png}{16_primary_carbon_fits_panel_06.png}{Primary carbon Q-Q plots for the separately measured 20 mm and 80 mm gauge groups. Density and CDF plots remain in the notebook and graphs folder.}{fig:primary-qq}
+\FloatBarrier
+
+For the retained-data illustration, the 20 mm group supplies three strength blocks of 51 specimens, with target 35 failures per block, balanced withdrawals and threshold one in the scaled unit. The 80 mm group supplies six upper 2-records. The original workbook order did not reach six such records. We therefore use one fixed seeded permutation, with seed $250150045+201$, and save both acquisition and original source positions. There is no repeated search for a permutation with a preferred estimate. This remains an imposed retrospective acquisition design.
+
+\input{tables/review_primary_estimates.tex}
+
+The retained-data unrestricted MLE is about 0.9581, whereas the unrestricted posterior mean is about 0.8381. The ordered posterior mean is about 0.8395, very close to its unrestricted counterpart. Only six stress records enter this likelihood, even though 153 complete stress measurements are available for separate fit checks. The rate estimate can therefore be sensitive to the retained records and to the proper prior. Its high MLE should not be read as an observed population truth. The intervals show substantial uncertainty.
+
+The primary numerical HPD intervals are $[0.6606,0.9726]$ without the order and $[0.6652,0.9721]$ with it. They differ from the equal-tail intervals in Table~\ref{tab:primary-estimates}.
+
+The additional bootstrap intervals for all three examples are in Table~\ref{tab:application-bootstrap}.
+
+\singleplot{17_primary_reliability_panel_01.png}{Retained-data reliability estimates for the distinct primary gauge groups. The Bayesian lines are equal-tail intervals and the ordered MLE line is percentile bootstrap.}{fig:primary-reliability}
+\FloatBarrier
+
+\subsection{Evidence about the order assumption}\label{sec:order-diagnostic}
+A restricted model is a conditional analysis, so its narrower support needs a scientific reason. As a descriptive likelihood diagnostic, compare the unrestricted and ordered maxima through
+\begin{equation}
+D_O=2\{\ell(\widehat\alpha,\widehat a,\widehat b)-\ell(\widetilde\alpha,\widetilde a,\widetilde b)\}.\label{eq:order-diagnostic}
+\end{equation}
+It is zero if the unrestricted estimate satisfies the order. To calibrate it, fit the equality boundary $a=b$, regenerate the full experiment under that boundary fit, and refit both models in 999 replicates. The reported tail area uses $(1+\#\{D_O^*\ge D_O\})/1000$. This is a parametric boundary calibration with fitted nuisance parameters. It is not an exact finite-sample test over the entire composite order null.
+
+We also calculate $P(a\le b\mid D)$ under the unrestricted primary prior by integrating its posterior over $p\le1/2$. It answers a Bayesian question under that prior, rather than the repeated-sampling question of the likelihood diagnostic. Table~\ref{tab:order-evidence}, placed beside the first data estimates, reports both measures.
+
+For the jute example, posterior order probability is about 0.878, but the complete-data Weibull rejection still limits interpretation. The random split has posterior order probability about 0.127 and boundary-bootstrap tail area 0.101. Calling this a 5 percent rejection would overstate the evidence. Its ordered analysis is a sensitivity fit, not the preferred result solely because it is narrower. The primary gauge groups have posterior order probability about 0.996. In jute and primary examples the unrestricted MLE already satisfies the order, so the likelihood diagnostic is zero and its tail area is one. A tail area of one does not mean the order has probability one.
+
+These diagnostics do not define a new automatic method that tests, selects an estimator and then reuses its interval with guaranteed coverage. The report keeps both fits visible so that the assumption and its effect can be assessed.
+
+\input{tables/review_application_bootstrap.tex}
+\FloatBarrier
+
+\subsection{A complete-data comparison without the Weibull assumption}\label{sec:nonparametric}
+The jute rejection motivates an estimate that does not require a Weibull distribution or equal shapes. Let $N_X$ and $N_Y$ be complete sample sizes, and let $M_l=\sum_i\mathbf1\{X_i>Y_l\}$ be the number of strengths above stress observation $Y_l$. An empirical shared-stress estimator is
+\begin{equation}
+\widehat R_U=\frac{1}{N_Y\binom{N_X}{K}}
+\sum_{l=1}^{N_Y}\sum_{j=s}^K
+\binom{M_l}{j}\binom{N_X-M_l}{K-j}.\label{eq:nonparametric}
+\end{equation}
+A binomial coefficient is zero when its lower argument is outside its possible range. For a fixed observed stress, this counts all subsets of $K$ distinct strengths that have at least $s$ exceedances. Averaging over stress observations gives a two-sample U-statistic for the same common-stress event. Under independent identically distributed observations within each group, it is unbiased. It does not assume independent component survival after averaging over the shared stress.
+
+We independently resample both complete groups with replacement 2000 times and report percentile intervals. These intervals are still bootstrap approximations. Independence of specimen measurements remains an assumption. The method uses complete data and is therefore not a nonparametric solution to the retained censoring/record likelihood.
+
+\input{tables/review_nonparametric.tex}
+
+The complete-data nonparametric estimates are about 0.542 for jute, 0.389 for the random split, and 0.809 for the primary gauge groups. The matching complete-data common-shape Weibull estimates are about 0.523, 0.439 and 0.811. The primary parametric and nonparametric estimates are close on the same information basis. This provides a useful check on the complete-data model calculation. It does not remove selection, independence or operating-load limitations.
+
+The primary retained-data MLE is higher than its complete-data estimate. The two calculations intentionally use different observations: one retains only censored strength failures and six stress records, while the other uses all 306 measurements. Their difference should not be described as a numerical contradiction, or as evidence that the retained estimator is automatically more accurate. The same distinction applies to the jute estimates.
+
+\singleplot{18_nonparametric_comparison_panel_01.png}{Complete-data nonparametric shared-stress reliability estimates and two-sample percentile bootstrap intervals. These use more observations than the retained-data fits.}{fig:nonparametric}
+\FloatBarrier
+
+\subsection{Further numerical verification and scope}\label{sec:further-checks}
+After integrating out the total rate $t$, the posterior has only two numerical coordinates. Deterministic quadrature is a practical choice in this dimension and avoids Monte Carlo noise in the repeated estimator comparison. It is an approximation: finite shape bounds, node counts and interpolation can affect it. Refinement checks and independent sampling therefore remain necessary.
+
+Across all three data examples, changing from $240\times320$ to $400\times520$ quadrature nodes changes posterior means by at most $1.4\times10^{-13}$, equal-tail endpoints by less than $6.4\times10^{-5}$ and HPD endpoints by less than $3.9\times10^{-7}$. Shape-edge mass is negligible in these examples. These checks examine numerical integration, not distributional fit.
+
+We add independent four-chain comparisons in ordered, boundary and violated scenarios for the 2-out-of-4 system. Each chain runs for 10,000 iterations and discards the first 2000. Table~\ref{tab:mcmc-extra} summarizes differences between quadrature means and sampler means. The largest discrepancy is about 2.2 sampler MCSEs, with the largest split R-hat near 1.0013 and the smallest effective sample size above 2800. This supports agreement in the tested cases without proving convergence for every dataset.
+
+\input{tables/review_mcmc.tex}
+
+The batched optimizer used in the larger bootstrap comparison is checked against 200 independent scalar fits, with largest parameter difference about $5.3\times10^{-8}$. The faster generator uses exponential spacings of the transformed Weibull lifetimes. Its retained-count mean is compared with the original complete-lifetime generator using 30,000 and 3000 samples, respectively. Specimen conservation is checked for each heterogeneous block. The implementation also checks the reliability formula against the conditional integral for four system choices and three rate ratios.
+
+Several limits remain. The product reliability formula requires a common shape; with unequal shapes the conditional integral in \eqref{eq:reliability-integral} must be evaluated for the unequal-shape model. The upper-record likelihood describes record values stopped at a prescribed record count. It deliberately excludes acquisition waiting times; saving their positions does not add those times to the likelihood. The applications impose censoring and acquisition orders retrospectively, and their comparison populations are laboratory breaking strengths rather than measured operating loads. The report therefore gives a reproducible statistical comparison, not a certified engineering reliability.
+\FloatBarrier

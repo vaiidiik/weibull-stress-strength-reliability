@@ -60,7 +60,7 @@
 \maketitle
 \end{singlespace}
 \begin{abstract}
-We study a system that works when at least three of five component strengths exceed a common random stress. Strength and stress follow Weibull distributions with the same shape and different rates. Strength observations are collected in blocks under progressive hybrid censoring, and stress observations are upper k-record values. We derive the reliability function and estimate it by unrestricted and order-restricted maximum likelihood. We also obtain Bayesian estimates under a dependent gamma-Dirichlet prior. A Monte Carlo study with 48 scenarios and 300 replications per scenario compares absolute bias and mean squared error. Asymptotic, equal-tail and numerical highest posterior density intervals are compared through coverage and average width. An incorrect order restriction increases bias and can prevent intervals from covering the true reliability. Published jute-fibre and carbon-fibre measurements illustrate the methods. The jute example has a Weibull-fit limitation; the additional carbon example is compatible with the fitted model.
+We study a system that works when at least three of five component strengths exceed a common random stress. Strength and stress follow Weibull distributions with the same shape and different rates. Strength observations are collected in blocks under progressive hybrid censoring, and stress observations are upper k-record values. We derive the reliability function and estimate it by unrestricted and order-restricted maximum likelihood. We also obtain Bayesian estimates under a dependent gamma-Dirichlet prior. A Monte Carlo study with 48 scenarios and 1000 replications per scenario compares absolute bias and mean squared error. Asymptotic, equal-tail and numerical highest posterior density intervals are compared through coverage and average width. An incorrect order restriction increases bias and can prevent intervals from covering the true reliability. Published jute-fibre and carbon-fibre measurements illustrate the methods. The jute example has a Weibull-fit limitation. A random carbon split is used as a boundary check, and separate primary carbon gauge groups provide a further laboratory comparison. Additional studies examine bootstrap intervals, another system size, unequal block designs and prior sensitivity.
 
 \textbf{Keywords:} Weibull distribution; stress-strength reliability; progressive hybrid censoring; upper k-records; maximum likelihood; gamma-Dirichlet prior.
 \end{abstract}
@@ -98,9 +98,15 @@ An equivalent expression is easier to evaluate. The transformed strengths $X_i^\
 \begin{equation}
 \boxed{R_{s,K}=1-\prod_{j=s}^K\frac{j}{j+\rho}.}\label{eq:reliability}
 \end{equation}
-For $K=s=1$ this reduces to $b/(a+b)$. Reliability tends to zero as $\rho\to0$ and to one as $\rho\to\infty$. It does not depend directly on the common shape, although the fitted rates do. We use $s=3$ and $K=5$ throughout the numerical study. In this case $R_{3,5}=1/2$ at $a=b$, and the order restriction implies $R_{3,5}\ge1/2$.
+For $K=s=1$ this reduces to $b/(a+b)$. Reliability tends to zero as $\rho\to0$ and to one as $\rho\to\infty$. It does not depend directly on the common shape, although the fitted rates do. The main study uses $s=3$ and $K=5$; additional checks use other system sizes. In this case $R_{3,5}=1/2$ at $a=b$, and the order restriction implies $R_{3,5}\ge1/2$.
 
-The common stress in \eqref{eq:reliability-integral} matters. Component survival indicators are independent conditional on $Y$, but dependent after averaging over $Y$. Substituting $P(X>Y)$ directly into an ordinary binomial probability would describe a different experiment. The notebook checks \eqref{eq:reliability} by numerical integration and direct simulation.
+The common stress in \eqref{eq:reliability-integral} matters. Component survival indicators are independent conditional on $Y$, but dependent after averaging over $Y$. Substituting $P(X>Y)$ directly into an ordinary binomial probability would describe a different experiment. For example, when $s=2$, $K=4$ and $\rho=2$, the shared-stress probability is $0.8000$. The single-component probability is $2/3$, but inserting it into an independent binomial calculation gives $0.8889$. Those are different experiments. The notebook checks \eqref{eq:reliability} by numerical integration and direct simulation.
+
+More generally, at equal rates the product telescopes to $s/(K+1)$. Therefore the ordered model has lower reliability bound
+\begin{equation}
+R_{s,K}\ge 1-\frac{s}{K+1}.\label{eq:order-bound}
+\end{equation}
+This is $0.6$ for a 2-out-of-4 system. The implementation uses $s$ and $K$ in the reliability derivative, posterior transformation, HPD support and sampling checks; it does not fix this bound at one half.
 
 \input{sections/model_graphs.tex}
 
@@ -233,7 +239,7 @@ The simulation uses $80\times110$ quadrature nodes and the data examples use $24
 \subsection{Simulation study}\label{sec:simulation}
 There are 48 scenarios: three rate-order regimes, two shapes, two block sizes, two censoring protocols and two record orders. The rate pairs are $(0.8,1.6)$, $(1,1)$ and $(1.6,0.8)$, called ordered, boundary and violated. Shapes are 0.8 and 1.8. Each experiment has three strength blocks of size 20 or 40, target $m=\lfloor0.7n\rfloor$, and balanced planned withdrawals. The time limit is fixed at the true strength distribution's 65th percentile before generating the data. Both Type-I and adaptive Type-II progressive hybrid protocols are considered. The record order is $k=1$ or $k=3$, with six records for $n=20$ and twelve for $n=40$.
 
-Each scenario has $M=300$ independent replications, giving 14,400 datasets. All four estimators use the same data within a replication. Increasing the size also increases the number of stress records, so it does not isolate the effect of strength sample size. A fixed master seed of 250150045 makes the calculations reproducible.
+Each scenario has $M=1000$ independent replications, giving 48,000 datasets. All four estimators use the same data within a replication. Increasing the size also increases the number of stress records, so it does not isolate the effect of strength sample size. A fixed master seed of 250150045 makes the calculations reproducible.
 
 If $e_l=\widehat\theta_l-\theta$ is the error in replication $l$, we calculate
 \begin{equation}
@@ -263,7 +269,7 @@ The results show why an order restriction must be justified. In the ordered regi
 \input{tables/hpd_findings.tex}
 \input{sections/simulation_graphs.tex}
 
-Ordered MLE bootstrap coverage is assessed separately in six selected scenarios, with 100 outer datasets and 199 bootstrap resamples each. This smaller comparison has larger Monte Carlo uncertainty. It does not assign a regular normal interval to a boundary estimate.
+Ordered MLE bootstrap coverage is assessed separately in twelve selected settings, with 500 outer datasets and 399 bootstrap resamples each. These settings cover all three order regimes, both sizes and both protocols at shape 1.8 and record order one. They do not assign a regular normal interval to a boundary estimate. The unrestricted percentile and studentized comparisons appear in Section~\ref{sec:extra-bootstrap}.
 \input{tables/bootstrap.tex}
 
 \subsection{Real data analysis}\label{sec:data}
@@ -280,36 +286,39 @@ We first fit the complete groups and assess Weibull fit using bootstrap-calibrat
 
 Next, a seeded allocation divides the strength group into three blocks of ten. Each block has target seven failures, balanced withdrawals and $T=0.5$. Type-I progressive hybrid censoring leaves 13 observed failures altogether. From the comparison group we retain the first six upper 2-records, stopping at position nine. The printed order is an imposed acquisition order; it is not known to be the historical order of the measurements. The notebook examines alternative random orders as a sensitivity check. Allocation, withdrawals, terminal survivors and record positions are saved in the data folder.
 
-\input{tables/jute_retained.tex}
-\input{tables/jute_records.tex}
+
 \input{sections/jute_graphs.tex}
 
-\subsubsection{Additional carbon-fibre measurements}
-Because of the jute fit limitation, we also use the 100 carbon-fibre measurements reproduced by Newer and Alanazi \cite{NewerAlanazi2026}, Section 5.1.1, attributed there to Nichols and Padgett \cite{Nichols2006}. They are in GPa. A seeded random permutation splits them into disjoint groups of fifty. We divide both groups by a fixed 3 GPa unit before inference, and keep the same prior hyperparameters on these scaled rates. The original Nichols and Padgett experimental file was not supplied; the reproduced article is the source for our transcription.
+\subsubsection{Carbon random-split boundary check}
+As a check near an equal-population boundary, we also use the 100 carbon-fibre measurements reproduced by Newer and Alanazi \cite{NewerAlanazi2026}, Section 5.1.1, attributed there to Nichols and Padgett \cite{Nichols2006}. They are in GPa. A seeded random permutation splits them into disjoint groups of fifty. We divide both groups by a fixed 3 GPa unit before inference, and keep the same prior hyperparameters on these scaled rates. The original Nichols and Padgett experimental file was not supplied; the reproduced article is the source for our transcription.
 
-Strength block sizes are 17, 17 and 16, with target $\lfloor0.7n\rfloor$, $T=1$ in scaled units and balanced withdrawals. We use the first five upper 4-records from the comparison half. The retained records are distinct, so no jitter is added to rounded source values. Both complete groups are compatible with the fitted Weibull distributions at the 5 percent level, and the common-shape test does not reject. This supports using the carbon example as an additional illustration, without proving the assumptions true.
+Strength block sizes are 17, 17 and 16, with target $\lfloor0.7n\rfloor$, $T=1$ in scaled units and balanced withdrawals. We use the first five upper 4-records from the comparison half. The retained records are distinct, so no jitter is added to rounded source values. Both complete groups are compatible with the fitted Weibull distributions at the 5 percent level, and the common-shape test does not reject. The two halves come from one source population, so this is a boundary/sanity check rather than validation with distinct strength and stress populations. Non-rejection of the Weibull tests does not change that distinction.
 
-\input{tables/carbon_sampling.tex}
-\input{tables/carbon_records.tex}
-\input{sections/carbon_graphs.tex}
+
+
 \input{tables/real_estimates.tex}
 \input{tables/real_hpd.tex}
-Table~\ref{tab:real-estimates} uses a log-ratio asymptotic interval for the unrestricted MLE, a 500-resample percentile bootstrap interval for the ordered MLE, and equal-tail intervals for the Bayesian rows. Table~\ref{tab:real-hpd} gives the numerical HPD alternatives for the same posterior distributions. Confidence intervals and posterior credible intervals have different interpretations.
+Table~\ref{tab:real-estimates} uses a log-ratio asymptotic interval for the unrestricted MLE, a 1999-resample percentile bootstrap interval for the ordered MLE, and equal-tail intervals for the Bayesian rows. Table~\ref{tab:real-hpd} gives the numerical HPD alternatives for the same posterior distributions. Confidence intervals and posterior credible intervals have different interpretations.
 
 The jute estimates illustrate the calculation, but the rejected fit in one group must remain part of their interpretation. The carbon results are also sensitive to imposing an order: the ordered model excludes every reliability below one half. A narrower interval in that model is partly a consequence of the assumption, rather than evidence that the assumption is correct.
 
-\input{tables/parameter_intervals.tex}
-\input{tables/loss_comparison.tex}
+\input{tables/review_order.tex}
+The random carbon split has likelihood diagnostic $p=0.101$, so it is not a 5 percent rejection of the order. Its unrestricted posterior order probability, about 0.127, nevertheless gives little support to imposing it. Ordered results should be read as conditional sensitivity fits. Section~\ref{sec:order-diagnostic} explains both measures. The primary gauge example in that section uses separate laboratory populations.
+
+
 \input{sections/posterior_graphs.tex}
 \input{sections/diagnostic_discussion.tex}
 \input{sections/sensitivity_discussion.tex}
 
+\input{sections/review_updates.tex}
+
+\clearpage
 \section{Conclusion}\label{sec:conclusion}
 We derived the shared-stress reliability of a Weibull $s$-out-of-$K$ system and used the appropriate likelihood for block progressive hybrid strengths and upper k-record stresses. Both unrestricted and ordered MLEs were obtained by profiling over the common shape. A dependent gamma-Dirichlet prior gave Bayesian estimates in both cases, with numerical integration reducing the posterior calculation to two dimensions.
 
 The simulation compares point-estimation errors and the coverage and width of asymptotic, equal-tail and numerical HPD intervals. The ordered Bayesian estimates perform well in the correctly ordered cases studied here. A false restriction produces substantial bias, and intervals constrained above one half cannot cover a reliability below one half. At the equality boundary, HPD and equal-tail intervals behave differently because an HPD interval may include the boundary itself.
 
-Published measurements provide reproducible illustrations, rather than proof of engineering performance. The jute example has a documented fit problem; the carbon example gives a compatible additional validation. The common-shape assumption, noninformative withdrawals and the imposed record acquisition order are limitations. The notebook includes prior and acquisition-order sensitivity checks and posterior diagnostics. Future work could study unequal shapes or other withdrawal plans, but those extensions are outside the present project.
+Published measurements provide reproducible illustrations, rather than proof of engineering performance. The jute example has a documented fit problem; the random carbon split is a boundary check. Separate 20 mm and 80 mm carbon groups give compatible complete-data Weibull fits and a nonparametric reliability near 0.81. The common-shape assumption, noninformative withdrawals and the imposed record acquisition order are limitations. The notebook includes prior and acquisition-order sensitivity checks and posterior diagnostics. The added 2-out-of-4 experiments separate the effects of strength size and record count and compare different block and withdrawal plans. Bootstrap studentization improves some coverage results here, but none of the approximate intervals has guaranteed finite-sample coverage. Broader-prior comparisons show that small-sample Bayesian performance depends on the prior. Unequal shapes and a model for informative withdrawals remain outside the project.
 
 \clearpage
 \input{sections/appendices.tex}

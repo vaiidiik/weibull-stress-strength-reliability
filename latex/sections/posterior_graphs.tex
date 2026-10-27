@@ -1,14 +1,4 @@
-\subsubsection{What the fitted estimates and posterior graphs show}
-For jute, the unrestricted MLE reliability is about 0.7526 and the unrestricted posterior mean is about 0.6656. The Bayesian estimate averages reliability over a posterior distribution rather than evaluating reliability at posterior mean rates. The difference between MLE and Bayes here reflects both the prior and the remaining uncertainty after censoring and record selection.
-
-The ordered jute posterior mean is about 0.6989. This shift is partly imposed by excluding reliability below one half. In the carbon example the contrast is larger: the unrestricted and ordered Bayesian means are about 0.3623 and 0.5653. A change that large should be reported as sensitivity to an assumption, rather than as automatic improvement.
-
-\pairplot{08_real_reliability_intervals_panel_01.png}{08_real_reliability_intervals_panel_02.png}{Jute posterior reliability histograms and the four point/interval estimates. Histogram draws come from the fitted posterior; interval types are identified in the text.}{fig:jute-posterior}
-The intervals are wide because only a small part of the original sample enters the censored/record likelihood. In particular, six stress records contain less information than all thirty comparison measurements. The parameter posterior plots show skewness in the rates; this is one reason to retain full uncertainty rather than report only a point estimate.
-
-\pairplot{10_parameter_posteriors_panel_01.png}{10_parameter_posteriors_panel_02.png}{Jute posterior distributions of the common shape and strength rate, comparing unrestricted and ordered supports.}{fig:parameter-shape-strength}
-\singleplot{10_parameter_posteriors_panel_03.png}{Jute stress-rate posterior distributions under the two supports. Rate values refer to the fixed measurement unit used in the analysis.}{fig:parameter-stress}
-The LINEX values in Table~\ref{tab:loss} use the same fitted posterior in each row but change the cost of overestimation relative to underestimation. They are alternative decisions under a loss function, not extra data fits. Squared error remains the main Bayesian comparison in the simulation.
-
-
+\subsubsection{Interpreting the fitted estimates}
+For jute, unrestricted MLE reliability is about 0.7526 and the posterior mean about 0.6656. Bayes averages reliability over the posterior, rather than evaluating it at the mean rates. The ordered posterior mean is about 0.6989, partly reflecting exclusion of reliability below one half. For the carbon split, the unrestricted and ordered posterior means are about 0.3623 and 0.5653. That difference is sensitivity to an assumption, rather than automatic improvement.
+Only thirteen failures and six stress records enter the jute likelihood, so the wide uncertainty should be retained. Parameter posterior histograms and chain traces remain in the executed notebook; the report gives their numerical diagnostics.
 \FloatBarrier
